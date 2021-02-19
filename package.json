@@ -1,0 +1,47 @@
+{
+  "name": "spawk",
+  "version": "1.0.0",
+  "description": "child_process.spawn mocking library",
+  "main": "lib/spawk.js",
+  "scripts": {
+    "lint": "standard",
+    "lint:fix": "standard --fix",
+    "posttest": "npm run lint",
+    "test": "NODE_ENV=test nyc mocha test/*.js --check-leaks"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wraithgar/spawk.git"
+  },
+  "keywords": [
+    "child_process.spawn",
+    "mock",
+    "child_process",
+    "process",
+    "spawn"
+  ],
+  "author": "Gar <gar+npm@danger.computer>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wraithgar/spawk/issues"
+  },
+  "homepage": "https://github.com/wraithgar/spawk#readme",
+  "devDependencies": {
+    "chai": "^4.3.0",
+    "mocha": "^8.3.0",
+    "nyc": "^15.1.0",
+    "standard": "^16.0.3"
+  },
+  "nyc": {
+    "check-coverage": true,
+    "branches": 100,
+    "lines": 100,
+    "functions": 100,
+    "statements": 100
+  },
+  "eslintConfig": {
+    "env": {
+      "node": true
+    }
+  }
+}
