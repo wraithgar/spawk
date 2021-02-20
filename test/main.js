@@ -141,6 +141,23 @@ describe('spawk', () => {
       spawn('ls', ['./'])
       expect(spawk.done()).to.equal(true)
     })
+
+    it('matching options', () => {
+      spawk.spawn('ls', null, { test: 'option' })
+      spawn('ls', null, { test: 'option' })
+      expect(spawk.done()).to.equal(true)
+    })
+
+    it('extra options', () => {
+      spawk.spawn('ls', null, { test: 'option' })
+      spawn('ls', null, { test: 'option', extra: 'option' })
+      expect(spawk.done()).to.equal(true)
+    })
+
+    it('mismatching options', () => {
+      spawk.spawn('ls', null, { test: 'option' })
+      expect(() => { spawn('ls', null, { test: 'different' }) }).to.throw(/different/)
+    })
   })
 
   describe('stdio', () => {
