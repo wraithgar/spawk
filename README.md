@@ -55,6 +55,10 @@ Intercept and mock a call to `child_process.spawn`.
 
 Returns a `Interceptor` object, see below for more info.
 
+When generating stdin/stdin/stdout streams for the interceptor, if
+the call to `spawn` specifies `inherit` for their modes they will be
+mapped to process.stdin etc.
+
 ### spawk.allowUnmatched()
 
 Allow calls to `child_process.spawn` that do not match any interceptor
