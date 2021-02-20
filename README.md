@@ -111,6 +111,6 @@ with no signal.
 
 Tells the interceptor what to write to stdout before exit.
 
-### mock.stderr(data)
+### interceptor.stderr(data)
 
 Tells the interceptor what to write to stderr before exit.
