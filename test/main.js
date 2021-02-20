@@ -112,6 +112,12 @@ describe('spawk', () => {
       expect(interceptor.description).to.not.have.string('uncalled')
       expect(interceptor.description).to.have.string('called')
     })
+
+    it('stringifies', () => {
+      const interceptor = spawk.spawn('ls')
+      expect(`${interceptor}`).to.have.string('ls')
+      expect(`${interceptor}`).to.have.string('uncalled')
+    })
   })
 
   describe('matching', () => {
