@@ -22,10 +22,10 @@ By default, any calls to `spawn` that do not match an existing mock will
 pass through to the original `spawn`.  See `preventUnmatched` below for
 more info on how to change this.
 
-Each mocked call will only be used once, so if you want to mock multiple
-calls to the same command you need to call `spawk.spawn` for each call
-you want to be intercepted.  They will be used in the order that they
-were created.
+Each intercepted call will only be used once, so if you want to
+intercept multiple calls to the same command you need to call
+`spawk.spawn` for each call you want to be intercepted.  They will be
+used in the order that they were created.
 
 # API
 
