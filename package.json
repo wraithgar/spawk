@@ -10,6 +10,10 @@
     "posttest": "npm run lint",
     "test": "NODE_ENV=test nyc mocha test/*.js --check-leaks"
   },
+  "enginesStrict": true,
+  "engines": {
+    "node": ">=10.0.0"
+  },
   "files": [
     "lib/"
   ],
