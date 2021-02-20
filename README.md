@@ -79,6 +79,18 @@ this will return `true`.  If they have not this will throw an exception.
 
 Remove any currently configured interceptors.
 
+### spawk.unload()
+
+Unloads spawk from intercepting `child_process.spawn` calls completely.
+This also removes any currently configured interceptors.
+
+### spawk.load()
+
+Loads spawk for intercepting `child_process.spawn` calls.  This is
+called by default, you should only need to call this if you have
+previously called `spawk.unload()` for some reason.
+
+
 ## Interceptor
 
 ```js
