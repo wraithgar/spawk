@@ -20,17 +20,17 @@ describe('unmatched', () => {
   })
 })
 
-describe('spawn mock', () => {
+describe('spawn interceptor', () => {
   beforeEach(() => {
     spawk.clean()
     spawk.preventUnmatched()
   })
 
   it('requires a command', async () => {
-    expect(() => { spawk.spawn() }).to.throw('You must specify the command to mock')
+    expect(() => { spawk.spawn() }).to.throw('You must specify the command to intercept')
   })
 
-  it('mocks a command with exitCode, stderr, and stdout', async () => {
+  it('intercepts a command with exitCode, stderr, and stdout', async () => {
     const ls = spawk.spawn('ls').exit(42).signal('SIGHUP').stdout('test stdout output').stderr('test stderr output')
     const spawned = spawn('ls')
 
@@ -69,18 +69,64 @@ describe('spawn mock', () => {
     expect(stderr).to.equal('test stderr output')
     expect(ls.called).to.equal(true)
   })
+})
 
-  it('throws on done() if not done', () => {
+describe('done()', () => {
+  beforeEach(() => {
+    spawk.clean()
+    spawk.preventUnmatched()
+  })
+  it('throws if not called', () => {
     spawk.spawn('ls')
     expect(() => {
       spawk.done()
-    }).to.throw(/Uncalled spawn mocks found.*ls/)
+    }).to.throw(/Uncalled spawn interceptors found.*ls/)
   })
 
-  it('does not throw on done() if done', () => {
+  it('does not throw if called', () => {
     spawk.spawn('ls')
     spawn('ls')
     expect(spawk.done()).to.equal(true)
+  })
+})
+
+describe('description', () => {
+  beforeEach(() => {
+    spawk.clean()
+  })
+  it('contains the command', () => {
+    const interceptor = spawk.spawn('ls')
+    expect(interceptor.description).to.have.string('ls')
+  })
+
+  it('contains the args', () => {
+    const interceptor = spawk.spawn('ls', ['testarg', 'otherarg'])
+    expect(interceptor.description).to.have.string('testarg')
+    expect(interceptor.description).to.have.string('otherarg')
+  })
+
+  it('contains the options', () => {
+    const interceptor = spawk.spawn('ls', null, { test: 'option' })
+    expect(interceptor.description).to.have.string('test: \'option\'')
+  })
+
+  it('uncalled', () => {
+    const interceptor = spawk.spawn('ls')
+    expect(interceptor.description).to.have.string('uncalled')
+  })
+
+  it('called', () => {
+    const interceptor = spawk.spawn('ls')
+    spawn('ls')
+    expect(interceptor.description).to.not.have.string('uncalled')
+    expect(interceptor.description).to.have.string('called')
+  })
+})
+
+describe('matching', () => {
+  beforeEach(() => {
+    spawk.clean()
+    spawk.preventUnmatched()
   })
 
   it('will not match the same spawn twice', () => {
@@ -92,5 +138,21 @@ describe('spawn mock', () => {
   it('will not match a different command', () => {
     spawk.spawn('ls')
     expect(() => { spawn('ps') }).to.throw(/spawk: Unmatched spawn.*ps/)
+  })
+
+  it('will not match if args are missing', () => {
+    spawk.spawn('ls', ['./'])
+    expect(() => { spawn('ls') }).to.throw(/spawk: Unmatched spawn.*ls/)
+  })
+
+  it('will not match if args are different', () => {
+    spawk.spawn('ls', ['./'])
+    expect(() => { spawn('ls', ['../']) }).to.throw(/spawk: Unmatched spawn.*ls/)
+  })
+
+  it('will match if no args are intercepted but args are passed', () => {
+    spawk.spawn('ls', null, {})
+    spawn('ls', ['./'])
+    expect(spawk.done()).to.equal(true)
   })
 })
