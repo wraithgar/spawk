@@ -12,8 +12,11 @@ const fixtures = {
 
   options: (needed = {}) => {
     const options = {}
-    if ((needed.signal !== false && Faker.random.boolean()) || needed.signal === true) {
-      options.signal = fixtures.signal()
+    if (Faker.random.boolean() || needed.argv0 === true) {
+      options.argv0 = fixtures.command()
+    }
+    if (Faker.random.boolean() || needed.serialization === true) {
+      options.serialization = Faker.random.arrayElement(['json', 'advanced'])
     }
     if (Faker.random.boolean()) {
       options[Faker.random.arrayElement(['detached',
@@ -22,14 +25,17 @@ const fixtures = {
     if (Faker.random.boolean()) {
       options[Faker.random.arrayElement(['uid', 'gid'])] = Faker.random.number()
     }
-    if ((needed.shell !== false && Faker.random.boolean()) || needed.shell === true) {
+
+    // Because shell can be true there is no way to request a fixture that
+    // explicitly has that as shell, just add it manually
+    if (Faker.random.boolean() || needed.shell === true) {
       if (Faker.random.boolean()) {
         options.shell = Faker.random.boolean()
       } else {
         options.shell = fixtures.shell()
       }
     }
-    if ((needed.stdio !== false && Faker.random.boolean()) || needed.stdio === true) {
+    if (Faker.random.boolean() || needed.stdio === true) {
       if (Faker.random.boolean()) {
         options.stdio = Faker.random.arrayElement(['pipe', 'overlapped', 'ignore', 'inherit'])
       } else {
@@ -41,7 +47,7 @@ const fixtures = {
         }
       }
     }
-    if ((needed.env !== false && Faker.random.boolean()) || needed.env) {
+    if (Faker.random.boolean() || needed.env) {
       options.env = {}
       const envs = Faker.random.number({ min: 0, max: 5 })
       if (envs) {

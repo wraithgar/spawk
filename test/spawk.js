@@ -18,13 +18,13 @@ describe('spawk', () => {
   it('loads and unloads', () => {
     const command = Fixtures.command()
     expect(spawk.loaded, 'initial loaded state').to.equal(true)
-    expect(() => { spawk.spawn(command) }, 'mocked command').to.not.throw()
-    expect(() => { spawk.unload() }, 'unload').to.not.throw()
+    spawk.spawn(command)
+    spawk.unload()
     expect(spawk.uncalled, 'uncalled mocks').to.equal(undefined)
     expect(() => { spawk.spawn(command) }, 'mocked command').to.throw(/unloaded/)
-    expect(() => { spawk.unload() }, 'unload').to.not.throw()
-    expect(() => { spawk.load() }, 'load').to.not.throw()
-    expect(() => { spawk.spawn(command) }, 'mocked command').to.not.throw()
+    spawk.unload()
+    spawk.load()
+    spawk.spawn(command)
     expect(spawk.uncalled, 'spawk.uncalled').to.have.string(command)
   })
 
@@ -66,84 +66,133 @@ describe('spawk', () => {
       expect(() => { cp.spawn(command) }, 'spawn command').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
     })
 
-    it('will not match a different command', () => {
-      const command = Fixtures.command()
-      spawk.spawn(Fixtures.command())
-      expect(() => { cp.spawn(command) }, 'spawn different command').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
+    describe('command', () => {
+      it('matching', () => {
+        const command = Fixtures.command()
+        spawk.spawn(command)
+        cp.spawn(command)
+        expect(spawk.done(), 'done').to.equal(true)
+      })
+
+      it('different', () => {
+        const command = Fixtures.command()
+        spawk.spawn(command)
+        expect(() => { cp.spawn(`different-${command}`) }, 'spawn different command').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
+      })
     })
 
-    it('will not match if args are missing', () => {
-      const command = Fixtures.command()
-      const args = Fixtures.args()
-      spawk.spawn(command, args)
-      expect(() => { cp.spawn(command) }, 'spawn command').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
+    describe('args', () => {
+      it('matching', () => {
+        const command = Fixtures.command()
+        const args = Fixtures.args()
+        spawk.spawn(command, args)
+        cp.spawn(command, args)
+        expect(spawk.done(), 'done').to.equal(true)
+      })
+
+      it('missing', () => {
+        const command = Fixtures.command()
+        const args = Fixtures.args()
+        spawk.spawn(command, args)
+        expect(() => { cp.spawn(command) }, 'spawn command with no args').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
+      })
+
+      it('different', () => {
+        const command = Fixtures.command()
+        const args = Fixtures.args()
+        spawk.spawn(command, args)
+        expect(() => { cp.spawn(command, Fixtures.args()) }, 'spawn command with different args').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
+      })
+
+      it('added', () => {
+        const command = Fixtures.command()
+        spawk.spawn(command, null)
+        cp.spawn(command, Fixtures.args())
+        expect(spawk.done(), 'done').to.equal(true)
+      })
     })
 
-    it('will not match if args are different', () => {
-      const command = Fixtures.command()
-      const args = Fixtures.args()
-      spawk.spawn(command, args)
-      expect(() => { cp.spawn(command, Fixtures.args()) }, 'spawn command with different args').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
+    describe('options', () => {
+      it('matching', () => {
+        const command = Fixtures.command()
+        const options = Fixtures.options()
+        spawk.spawn(command, null, options)
+        cp.spawn(command, null, options)
+        expect(spawk.done(), 'done').to.equal(true)
+      })
+
+      it('matching shell', () => {
+        const command = Fixtures.command()
+        const options = Fixtures.options({ shell: true })
+        spawk.spawn(command, null, options)
+        cp.spawn(command, null, options)
+        expect(spawk.done(), 'done').to.equal(true)
+      })
+
+      it('different shell', () => {
+        const command = Fixtures.command()
+        const options = Fixtures.options({ shell: true })
+        spawk.spawn(command, null, options)
+        expect(() => { cp.spawn(command, null, { ...options, shell: `/prefix${options.shell}` }) }, 'spawn command with options').to.throw(/prefix/)
+      })
+
+      it('missing', () => {
+        const command = Fixtures.command()
+        const options = Fixtures.options()
+        spawk.spawn(command, [], options)
+        expect(() => { cp.spawn(command) }, 'spawn command with no options').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
+      })
+
+      it('different stdio', () => {
+        const command = Fixtures.command()
+        spawk.spawn(command, null, { stdio: 'inherit' })
+        expect(() => { cp.spawn(command, null, { stdio: 'pipe' }) }, 'spawn command with options').to.throw(/pipe/)
+      })
+
+      it('extra shell', () => {
+        const command = Fixtures.command()
+        const options = Fixtures.options()
+        delete options.shell
+        spawk.spawn(command, null, options)
+        cp.spawn(command, null, { ...options, shell: Fixtures.shell() })
+        expect(spawk.done(), 'done').to.equal(true)
+      })
     })
 
-    it('will match if no args are intercepted but args are passed', () => {
-      const command = Fixtures.command()
-      spawk.spawn(command, null)
-      cp.spawn(command, Fixtures.args())
-      expect(spawk.done(), 'done').to.equal(true)
-    })
+    describe('env', () => {
+      it('matching', () => {
+        const command = Fixtures.command()
+        const options = Fixtures.options({ env: true })
+        spawk.spawn(command, null, options)
+        cp.spawn(command, null, options)
+        expect(spawk.done(), 'done').to.equal(true)
+      })
 
-    it('matching options', () => {
-      const command = Fixtures.command()
-      const options = Fixtures.options()
-      spawk.spawn(command, null, options)
-      cp.spawn(command, null, options)
-      expect(spawk.done(), 'done').to.equal(true)
-    })
+      it('different', () => {
+        const command = Fixtures.command()
+        const options = Fixtures.options({ env: { testEnv: true } })
+        spawk.spawn(command, null, options)
+        expect(() => { cp.spawn(command, null, { ...options, env: { ...options.env, testEnv: false } }) }, 'spawn command with options').to.throw(/testEnv/)
+      })
 
-    it('extra options', () => {
-      const command = Fixtures.command()
-      const options = Fixtures.options({ signal: false })
-      spawk.spawn(command, null, options)
-      cp.spawn(command, null, { ...options, signal: Fixtures.signal() })
-      expect(spawk.done(), 'done').to.equal(true)
-    })
+      it('missing', () => {
+        const command = Fixtures.command()
+        const options = Fixtures.options({ env: true })
+        const missingOptions = { ...options }
+        delete missingOptions.env
+        spawk.spawn(command, null, options)
+        expect(() => { cp.spawn(command, null, missingOptions) }, 'spawn command with options').to.throw(/Unmatched/)
+      })
 
-    it('mismatching stdio', () => {
-      const command = Fixtures.command()
-      spawk.spawn(command, null, { stdio: 'inherit' })
-      expect(() => { cp.spawn(command, null, { stdio: 'pipe' }) }, 'spawn command with options').to.throw(/pipe/)
-    })
-
-    it('mismatching shell', () => {
-      const command = Fixtures.command()
-      const options = Fixtures.options({ shell: true })
-      spawk.spawn(command, null, options)
-      expect(() => { cp.spawn(command, null, { ...options, shell: `/prefix${options.shell}` }) }, 'spawn command with options').to.throw(/prefix/)
-    })
-
-    it('mismatched env', () => {
-      const command = Fixtures.command()
-      const options = Fixtures.options({ env: { testEnv: true } })
-      spawk.spawn(command, null, options)
-      expect(() => { cp.spawn(command, null, { ...options, env: { ...options.env, testEnv: false } }) }, 'spawn command with options').to.throw(/testEnv/)
-    })
-
-    it('missing env', () => {
-      const command = Fixtures.command()
-      const options = Fixtures.options({ env: { testEnv: true } })
-      const missingOptions = { ...options }
-      delete missingOptions.env
-      spawk.spawn(command, null, options)
-      expect(() => { cp.spawn(command, null, missingOptions) }, 'spawn command with options').to.throw(/Unmatched/)
-    })
-
-    it('called env', () => {
-      const command = Fixtures.command()
-      const options = Fixtures.options({ env: false })
-      spawk.spawn(command, null, options)
-      cp.spawn(command, null, { ...options, env: { spawkTestEnv: true } })
-      expect(spawk.done(), 'done').to.equal(true)
+      it('extra', () => {
+        const command = Fixtures.command()
+        const options = Fixtures.options()
+        const env = options.env
+        delete options.env
+        spawk.spawn(command, null, options)
+        cp.spawn(command, null, { ...options, env })
+        expect(spawk.done(), 'done').to.equal(true)
+      })
     })
   })
 })
