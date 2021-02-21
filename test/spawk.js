@@ -2,8 +2,9 @@
 'use strict'
 
 const { expect } = require('chai')
+const Fixtures = require('./fixtures')
 
-const spawk = require('../')
+const { spawk } = Fixtures
 
 const cp = require('child_process')
 
@@ -15,15 +16,16 @@ describe('spawk', () => {
   })
 
   it('loads and unloads', () => {
+    const command = Fixtures.command()
     expect(spawk.loaded, 'initial loaded state').to.equal(true)
-    expect(() => { spawk.spawn('ls') }, 'mocked ls').to.not.throw()
+    expect(() => { spawk.spawn(command) }, 'mocked command').to.not.throw()
     expect(() => { spawk.unload() }, 'unload').to.not.throw()
     expect(spawk.uncalled, 'uncalled mocks').to.equal(undefined)
-    expect(() => { spawk.spawn('ls') }, 'mocked ls').to.throw(/unloaded/)
+    expect(() => { spawk.spawn(command) }, 'mocked command').to.throw(/unloaded/)
     expect(() => { spawk.unload() }, 'unload').to.not.throw()
     expect(() => { spawk.load() }, 'load').to.not.throw()
-    expect(() => { spawk.spawn('ls') }, 'mocked ls').to.not.throw()
-    expect(spawk.uncalled).to.have.string('ls')
+    expect(() => { spawk.spawn(command) }, 'mocked command').to.not.throw()
+    expect(spawk.uncalled, 'spawk.uncalled').to.have.string(command)
   })
 
   it('requires a command', () => {
@@ -32,70 +34,85 @@ describe('spawk', () => {
 
   describe('done()', () => {
     it('throws if interceptor not called', () => {
-      spawk.spawn('ls')
-      expect(() => { spawk.done() }, 'done').to.throw(/Uncalled spawn interceptors found.*ls/)
+      const command = Fixtures.command()
+      spawk.spawn(command)
+      expect(() => { spawk.done() }, 'done').to.throw(new RegExp(`Uncalled spawn interceptors found.*${command}`))
     })
 
     it('does not throw if interceptor called', () => {
-      spawk.spawn('ls')
-      cp.spawn('ls')
+      const command = Fixtures.command()
+      spawk.spawn(command)
+      cp.spawn(command)
       expect(spawk.done(), 'done').to.equal(true)
     })
   })
 
   describe('matching', () => {
     it('throws helpful error on unmatched spawn', () => {
-      expect(() => { cp.spawn('ls', ['-al'], { shell: true }) }, 'mocked ls with parameters').to.throw(/spawk: Unmatched spawn.*ls.*-al.*shell.*true/)
+      const command = Fixtures.command()
+      expect(() => { cp.spawn(command, ['-al'], { shell: true }) }, 'mocked ls with parameters').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}.*-al.*shell.*true`))
     })
 
     it('does not throw on unmatched spawn', () => {
       spawk.allowUnmatched()
-      const ls = cp.spawn('ls')
-      expect(ls, 'mocked ls').to.be.instanceof(cp.ChildProcess)
+      const mock = cp.spawn('node', ['-v']) // node should be present on all systems we support
+      expect(mock, 'mocked command').to.be.instanceof(cp.ChildProcess)
     })
 
     it('will not match the same spawn twice', () => {
-      spawk.spawn('ls')
-      cp.spawn('ls')
-      expect(() => { cp.spawn('ls') }, 'spawn ls').to.throw(/spawk: Unmatched spawn.*ls/)
+      const command = Fixtures.command()
+      spawk.spawn(command)
+      cp.spawn(command)
+      expect(() => { cp.spawn(command) }, 'spawn command').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
     })
 
     it('will not match a different command', () => {
-      spawk.spawn('ls')
-      expect(() => { cp.spawn('ps') }, 'spawn ps').to.throw(/spawk: Unmatched spawn.*ps/)
+      const command = Fixtures.command()
+      spawk.spawn(Fixtures.command())
+      expect(() => { cp.spawn(command) }, 'spawn different command').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
     })
 
     it('will not match if args are missing', () => {
-      spawk.spawn('ls', ['./'])
-      expect(() => { cp.spawn('ls') }, 'spawn ls').to.throw(/spawk: Unmatched spawn.*ls/)
+      const command = Fixtures.command()
+      const args = Fixtures.args()
+      spawk.spawn(command, args)
+      expect(() => { cp.spawn(command) }, 'spawn command').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
     })
 
     it('will not match if args are different', () => {
-      spawk.spawn('ls', ['./'])
-      expect(() => { cp.spawn('ls', ['../']) }, 'spawn ls with different args').to.throw(/spawk: Unmatched spawn.*ls/)
+      const command = Fixtures.command()
+      const args = Fixtures.args()
+      spawk.spawn(command, args)
+      expect(() => { cp.spawn(command, Fixtures.args()) }, 'spawn command with different args').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
     })
 
     it('will match if no args are intercepted but args are passed', () => {
-      spawk.spawn('ls', null, {})
-      cp.spawn('ls', ['./'])
+      const command = Fixtures.command()
+      spawk.spawn(command, null)
+      cp.spawn(command, Fixtures.args())
       expect(spawk.done(), 'done').to.equal(true)
     })
 
     it('matching options', () => {
-      spawk.spawn('ls', null, { test: 'option' })
-      cp.spawn('ls', null, { test: 'option' })
+      const command = Fixtures.command()
+      const options = Fixtures.options()
+      spawk.spawn(command, null, options)
+      cp.spawn(command, null, options)
       expect(spawk.done(), 'done').to.equal(true)
     })
 
     it('extra options', () => {
-      spawk.spawn('ls', null, { test: 'option' })
-      cp.spawn('ls', null, { test: 'option', extra: 'option' })
+      const command = Fixtures.command()
+      const options = Fixtures.options()
+      spawk.spawn(command, null, options)
+      cp.spawn(command, null, { ...options, ...Fixtures.options() })
       expect(spawk.done(), 'done').to.equal(true)
     })
 
-    it('mismatching options', () => {
-      spawk.spawn('ls', null, { test: 'option' })
-      expect(() => { cp.spawn('ls', null, { test: 'different' }) }, 'spawn ls with options').to.throw(/different/)
+    it('mismatching option values', () => {
+      const command = Fixtures.command()
+      spawk.spawn(command, null, { test: 'option' })
+      expect(() => { cp.spawn(command, null, { test: 'different' }) }, 'spawn command with options').to.throw(/different/)
     })
   })
 })

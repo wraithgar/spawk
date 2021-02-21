@@ -110,6 +110,11 @@ Boolean that denotes whether or not this interceptor has been called yet
 
 Helpful string representation of the interceptor.
 
+### interceptor.calledWith
+
+When the interceptor has been called, this will be an object that
+contains the command, args, and options that were actually called.
+
 ### interceptor.exit(code)
 
 Tells the interceptor what status code to exit with. Defaults to `0`.

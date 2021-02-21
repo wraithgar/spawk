@@ -1,9 +1,16 @@
 'use strict'
 
 const Faker = require('faker')
+const spawk = require('../../')
 
 module.exports = {
+  spawk,
+
   command: () => Faker.random.word(),
+
+  args: () => Faker.random.words().split(' '),
+
+  options: () => Faker.random.words().split(' ').reduce((options, option) => { options[option] = Faker.random.word(); return options }, {}),
 
   output: () => Faker.random.words(),
 
