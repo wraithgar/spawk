@@ -103,16 +103,47 @@ describe('spawk', () => {
 
     it('extra options', () => {
       const command = Fixtures.command()
-      const options = Fixtures.options()
+      const options = Fixtures.options({ signal: false })
       spawk.spawn(command, null, options)
-      cp.spawn(command, null, { ...options, ...Fixtures.options() })
+      cp.spawn(command, null, { ...options, signal: Fixtures.signal() })
       expect(spawk.done(), 'done').to.equal(true)
     })
 
-    it('mismatching option values', () => {
+    it('mismatching stdio', () => {
       const command = Fixtures.command()
-      spawk.spawn(command, null, { test: 'option' })
-      expect(() => { cp.spawn(command, null, { test: 'different' }) }, 'spawn command with options').to.throw(/different/)
+      spawk.spawn(command, null, { stdio: 'inherit' })
+      expect(() => { cp.spawn(command, null, { stdio: 'pipe' }) }, 'spawn command with options').to.throw(/pipe/)
+    })
+
+    it('mismatching shell', () => {
+      const command = Fixtures.command()
+      const options = Fixtures.options({ shell: true })
+      spawk.spawn(command, null, options)
+      expect(() => { cp.spawn(command, null, { ...options, shell: `/prefix${options.shell}` }) }, 'spawn command with options').to.throw(/prefix/)
+    })
+
+    it('mismatched env', () => {
+      const command = Fixtures.command()
+      const options = Fixtures.options({ env: { testEnv: true } })
+      spawk.spawn(command, null, options)
+      expect(() => { cp.spawn(command, null, { ...options, env: { ...options.env, testEnv: false } }) }, 'spawn command with options').to.throw(/testEnv/)
+    })
+
+    it('missing env', () => {
+      const command = Fixtures.command()
+      const options = Fixtures.options({ env: { testEnv: true } })
+      const missingOptions = { ...options }
+      delete missingOptions.env
+      spawk.spawn(command, null, options)
+      expect(() => { cp.spawn(command, null, missingOptions) }, 'spawn command with options').to.throw(/Unmatched/)
+    })
+
+    it('called env', () => {
+      const command = Fixtures.command()
+      const options = Fixtures.options({ env: false })
+      spawk.spawn(command, null, options)
+      cp.spawn(command, null, { ...options, env: { spawkTestEnv: true } })
+      expect(spawk.done(), 'done').to.equal(true)
     })
   })
 })
