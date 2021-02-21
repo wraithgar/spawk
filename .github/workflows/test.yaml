@@ -9,11 +9,22 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [10.x, 12.x, 14.x, 15.x]
+        platform:
+          - os: ubuntu-latest
+            shell: bash
+          - os: macos-latest
+            shell: bash
+          - os: windows-latest
+            shell: bash
+          - os: windows-latest
+            shell: powershell
+
+    defaults:
+      run:
+        shell: ${{ matrix.platform.shell }}
 
     steps:
     - uses: actions/checkout@v2
