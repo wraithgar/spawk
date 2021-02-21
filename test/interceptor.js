@@ -4,7 +4,7 @@
 const { expect } = require('chai')
 const Fixtures = require('./fixtures')
 
-const spawk = require('../')
+const { spawk } = Fixtures
 
 const cp = require('child_process')
 
@@ -29,6 +29,30 @@ describe('interceptor', () => {
     expect(stdout, 'stdout contents').to.equal(undefined)
     expect(stderr, 'stderr contents').to.equal(undefined)
     expect(mock.called, 'mocked child called').to.equal(true)
+  })
+
+  it('calledWith', async () => {
+    let calledWith
+    const exitCode = Fixtures.exitCode()
+    const command = Fixtures.command()
+    const args = Fixtures.args()
+    const options = Fixtures.options()
+    const exitFn = function () {
+      calledWith = this.calledWith
+      return exitCode
+    }
+    const mock = spawk.spawn(command).exit(exitFn)
+
+    expect(mock.calledWith).to.equal(undefined)
+
+    const spawned = cp.spawn(command, args, options)
+    const { code } = await Fixtures.exitPromise(spawned)
+
+    expect(code, 'exit code').to.equal(exitCode)
+    expect(calledWith.command).to.equal(command)
+    expect(calledWith.args).to.equal(args)
+    expect(calledWith.options).to.equal(options)
+    expect(mock.called).to.equal(true)
   })
 
   describe('exit', () => {
@@ -219,52 +243,62 @@ describe('interceptor', () => {
 
   describe('description', () => {
     it('contains the command', () => {
-      const interceptor = spawk.spawn('ls')
-      expect(interceptor.description, 'interceptor description').to.have.string('ls')
+      const command = Fixtures.command()
+      const interceptor = spawk.spawn(command)
+      expect(interceptor.description, 'interceptor description').to.have.string(command)
     })
 
     it('contains the args', () => {
-      const interceptor = spawk.spawn('ls', ['testarg', 'otherarg'])
-      expect(interceptor.description, 'interceptor description').to.have.string('testarg')
-      expect(interceptor.description, 'interceptor description').to.have.string('otherarg')
+      const command = Fixtures.command()
+      const args = Fixtures.args()
+      const interceptor = spawk.spawn(command, args)
+      for (const arg of args) {
+        expect(interceptor.description, 'interceptor description').to.have.string(arg)
+      }
     })
 
     it('contains the options', () => {
-      const interceptor = spawk.spawn('ls', null, { test: 'option' })
+      const command = Fixtures.command()
+      const interceptor = spawk.spawn(command, null, { test: 'option' })
       expect(interceptor.description, 'interceptor description').to.have.string('test: \'option\'')
     })
 
     it('uncalled', () => {
-      const interceptor = spawk.spawn('ls')
+      const command = Fixtures.command()
+      const interceptor = spawk.spawn(command)
       expect(interceptor.description, 'interceptor description').to.have.string('uncalled')
     })
 
     it('called', () => {
-      const interceptor = spawk.spawn('ls')
-      cp.spawn('ls')
+      const command = Fixtures.command()
+      const interceptor = spawk.spawn(command)
+      cp.spawn(command)
       expect(interceptor.description, 'interceptor description').to.not.have.string('uncalled')
       expect(interceptor.description, 'interceptor description').to.have.string('called')
     })
 
     it('stringifies', () => {
-      const interceptor = spawk.spawn('ls')
-      expect(`${interceptor}`, 'stringified interceptor').to.have.string('ls')
+      const command = Fixtures.command()
+      const interceptor = spawk.spawn(command)
+      expect(`${interceptor}`, 'stringified interceptor').to.have.string(command)
       expect(`${interceptor}`, 'stringified interceptor').to.have.string('uncalled')
     })
   })
 
   describe('stdio', () => {
     it('string: inherit', () => {
-      spawk.spawn('ls')
-      const spawned = cp.spawn('ls', null, { stdio: 'inherit' })
+      const command = Fixtures.command()
+      spawk.spawn(command)
+      const spawned = cp.spawn(command, null, { stdio: 'inherit' })
       expect(spawned.stdin, 'spawned stdin').to.equal(process.stdin)
       expect(spawned.stdout, 'spawned stdout').to.equal(process.stdout)
       expect(spawned.stderr, 'spawned stderr').to.equal(process.stderr)
     })
 
     it('array: inherit, pipe, pipe', () => {
-      spawk.spawn('ls')
-      const spawned = cp.spawn('ls', null, { stdio: ['inherit', 'pipe', 'pipe'] })
+      const command = Fixtures.command()
+      spawk.spawn(command)
+      const spawned = cp.spawn(command, null, { stdio: ['inherit', 'pipe', 'pipe'] })
       expect(spawned.stdin, 'spawed stdin').to.equal(process.stdin)
       expect(spawned.stdout, 'spawed stdout').to.not.equal(process.stdout)
       expect(spawned.stderr, 'spawed stderr').to.not.equal(process.stderr)
