@@ -3,18 +3,64 @@
 const Faker = require('faker')
 const spawk = require('../../')
 
-module.exports = {
+const fixtures = {
   spawk,
 
   command: () => Faker.random.word(),
 
   args: () => Faker.random.words().split(' '),
 
-  options: () => Faker.random.words().split(' ').reduce((options, option) => { options[option] = Faker.random.word(); return options }, {}),
+  options: (needed = {}) => {
+    const options = {}
+    if ((needed.signal !== false && Faker.random.boolean()) || needed.signal === true) {
+      options.signal = fixtures.signal()
+    }
+    if (Faker.random.boolean()) {
+      options[Faker.random.arrayElement(['detached',
+        'windowsVerbatimArguments', 'windowsHide'])] = Faker.random.boolean()
+    }
+    if (Faker.random.boolean()) {
+      options[Faker.random.arrayElement(['uid', 'gid'])] = Faker.random.number()
+    }
+    if ((needed.shell !== false && Faker.random.boolean()) || needed.shell === true) {
+      if (Faker.random.boolean()) {
+        options.shell = Faker.random.boolean()
+      } else {
+        options.shell = fixtures.shell()
+      }
+    }
+    if ((needed.stdio !== false && Faker.random.boolean()) || needed.stdio === true) {
+      if (Faker.random.boolean()) {
+        options.stdio = Faker.random.arrayElement(['pipe', 'overlapped', 'ignore', 'inherit'])
+      } else {
+        options.stdio = [null, null, null]
+        for (let x = 0; x < 3; x++) {
+          if (Faker.random.boolean()) {
+            options.stdio[x] = Faker.random.arrayElement(['pipe', 'overlapped', 'ignore', 'ipc', 'inherit', Faker.random.number()])
+          }
+        }
+      }
+    }
+    if ((needed.env !== false && Faker.random.boolean()) || needed.env) {
+      options.env = {}
+      const envs = Faker.random.number({ min: 0, max: 5 })
+      if (envs) {
+        options.env = Faker.random.words(envs).split(' ').reduce((options, option) => { options[option] = Faker.random.word(); return options }, {})
+      }
+      if (typeof needed.env === 'object') {
+        options.env = { ...options.env, ...needed.env }
+      }
+    }
+    return options
+  },
 
   output: () => Faker.random.words(),
 
   exitCode: () => Faker.random.number({ min: 1, max: 255 }),
+
+  shell: () => Faker.random.arrayElement(['/bin/bash', '/bin/csh', '/bin/dash',
+    '/bin/ksh', '/bin/sh', '/bin/tcsh', '/bin/zsh', '/usr/local/bin/fish',
+    'cmd.exe', 'command.com']),
 
   signal: () => {
     const signals = require('./signals.json')
@@ -47,3 +93,4 @@ module.exports = {
     })
   })
 }
+module.exports = fixtures
