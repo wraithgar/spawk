@@ -22,6 +22,7 @@ jobs:
           - os: windows-latest
             shell: powershell
 
+    runs-on: ${{ matrix.platform.os }}
     defaults:
       run:
         shell: ${{ matrix.platform.shell }}
