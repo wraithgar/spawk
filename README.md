@@ -108,21 +108,37 @@ Boolean that denotes whether or not this interceptor has been called yet
 
 ### interceptor.description
 
-Helpful description that describes the interceptor.
+Helpful string representation of the interceptor.
 
 ### interceptor.exit(code)
 
 Tells the interceptor what status code to exit with. Defaults to `0`.
 
+This can be either a number or a function that returns a number.  The
+function can also be async or return a Promise.  The function will be
+called with `this` set to the interceptor.
+
 ### interceptor.signal(signal)
 
-Tells the interceptor what signal to exit with. The default is to exit
-with no signal.
+Tells the interceptor what signal to exit with. Defaults to null (exit
+with no signal).
+
+This can be either a string or a function that returns a string.  The
+function can also be async or return a Promise.  The function will be
+called with `this` set to the interceptor.
 
 ### interceptor.stdout(data)
 
 Tells the interceptor what to write to stdout before exit.
 
+This can be either a string, buffer, or a function that returns a string
+or buffer.  The function can also be async or return a Promise.  The
+function will be called with `this` set to the interceptor.
+
 ### interceptor.stderr(data)
 
 Tells the interceptor what to write to stderr before exit.
+
+This can be either a string, buffer, or a function that returns a string
+or buffer.  The function can also be async or return a Promise.  The
+function will be called with `this` set to the interceptor.
