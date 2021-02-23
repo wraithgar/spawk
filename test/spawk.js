@@ -67,17 +67,57 @@ describe('spawk', () => {
     })
 
     describe('command', () => {
-      it('matching', () => {
+      it('matching string', () => {
         const command = Fixtures.command()
         spawk.spawn(command)
         cp.spawn(command)
         expect(spawk.done(), 'done').to.equal(true)
       })
 
-      it('different', () => {
+      it('different string', () => {
         const command = Fixtures.command()
         spawk.spawn(command)
         expect(() => { cp.spawn(`different-${command}`) }, 'spawn different command').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
+      })
+
+      it('matching regex', () => {
+        const command = Fixtures.command()
+        const regex = new RegExp(command)
+        spawk.spawn(regex)
+        cp.spawn(command)
+        expect(spawk.done(), 'done').to.equal(true)
+      })
+
+      it('non-matching regex', () => {
+        const command = Fixtures.command()
+        const regex = new RegExp(`original-${command}`)
+        spawk.spawn(regex)
+        expect(() => { cp.spawn(`different-${command}`) }, 'spawn different command').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
+      })
+
+      it('matching function', () => {
+        const command = Fixtures.command()
+        const args = Fixtures.args()
+        const options = Fixtures.options()
+        let calledWith
+        let calledContext
+        const mock = spawk.spawn(function () {
+          calledWith = arguments
+          calledContext = this
+          return true
+        })
+        cp.spawn(command, args, options)
+        expect(calledWith[0], 'first parameter passed to function').to.equal(command)
+        expect(calledWith[1], 'second parameter passed to function').to.equal(args)
+        expect(calledWith[2], 'third parameter passed to function').to.equal(options)
+        expect(spawk.done(), 'done').to.equal(true)
+        expect(calledContext).to.equal(mock)
+      })
+
+      it('non-matching function', () => {
+        const command = Fixtures.command()
+        spawk.spawn(() => false)
+        expect(() => { cp.spawn(command) }, 'spawn command').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
       })
     })
 
@@ -109,6 +149,29 @@ describe('spawk', () => {
         spawk.spawn(command, null)
         cp.spawn(command, Fixtures.args())
         expect(spawk.done(), 'done').to.equal(true)
+      })
+
+      it('matching function', () => {
+        const command = Fixtures.command()
+        const args = Fixtures.args()
+        let calledWith
+        let calledContext
+
+        const mock = spawk.spawn(command, function () {
+          calledWith = arguments
+          calledContext = this
+          return true
+        })
+        cp.spawn(command, args)
+        expect(calledWith[0], 'first parameter passed to function').to.equal(args)
+        expect(spawk.done(), 'done').to.equal(true)
+        expect(calledContext).to.equal(mock)
+      })
+
+      it('non-matching function', () => {
+        const command = Fixtures.command()
+        spawk.spawn(command, () => false)
+        expect(() => { cp.spawn(command) }, 'spawn command').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
       })
     })
 
@@ -156,6 +219,29 @@ describe('spawk', () => {
         spawk.spawn(command, null, options)
         cp.spawn(command, null, { ...options, shell: Fixtures.shell() })
         expect(spawk.done(), 'done').to.equal(true)
+      })
+
+      it('matching function', () => {
+        const command = Fixtures.command()
+        const options = Fixtures.options()
+        let calledWith
+        let calledContext
+
+        const mock = spawk.spawn(command, null, function () {
+          calledWith = arguments
+          calledContext = this
+          return true
+        })
+        cp.spawn(command, null, options)
+        expect(calledWith[0], 'first parameter passed to function').to.equal(options)
+        expect(spawk.done(), 'done').to.equal(true)
+        expect(calledContext).to.equal(mock)
+      })
+
+      it('non-matching function', () => {
+        const command = Fixtures.command()
+        spawk.spawn(command, null, () => false)
+        expect(() => { cp.spawn(command) }, 'spawn command').to.throw(new RegExp(`spawk: Unmatched spawn.*${command}`))
       })
     })
 

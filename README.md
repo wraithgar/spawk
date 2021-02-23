@@ -42,18 +42,41 @@ const spawk = require('spawk')
 ### spawk.spawn(command, arguments, options)
 
 Intercept and mock a call to `child_process.spawn`.
-
- - `command` - Command to intercept an mock
- - `arguments` - optional array containing arguments that must accompany
-     the given `command` in order to be mocked.  The arguments must
-     match exactly between the mocked call and what is passed to `spawn`
-     in order for this mock to be used.
- - `options` - optional object containing options that you want to match
-     with those passed into `spawn` in order for this intercept to be
-     used.  Only the attributes you give are matched, others do not
-     affect whether or not it matches.
-
 Returns a `Interceptor` object, see below for more info.
+Parameters are defined as follows:
+
+- `command`
+
+Command to intercept and mock.  Can either be a string, a `RegExp`, or a
+function.  The interceptor will mock a given call if the string matches
+exactly, or the `RegExp` matches, or the function returns true.  The
+function will be passed three parameters: the command, args, and options
+passed to `child_process.spawn`.  The function will be called under the
+context of the `Interceptor`, so you will have access to the methods and
+attributes described below.
+
+- `arguments`
+
+Optional arguments that must accompany the given `command` in order to
+be mocked.  Can either be an array or a function.  The interceptor will
+mock a given call if the array matches exactly, or if the function
+returns true.  The function will be passed one parameter: the args
+passed to `child_process.spawn`.  The function will be called under the
+context of the `Interceptor`, so you will have access to the methods and
+attributes described below.
+
+- `options`
+
+Optional options that must accompany the given `command` in order to be
+mocked.  Can either be an object or a function.  The interceptor will
+mock a given call if all of the attributes in these options match, or if
+the function returns true.  If an object, only the attributes you give
+are matched, others do not affect whether or not it matches.  If a
+function, it will be passed one parameter: the options passed to
+`child_process.spawn`.  The function will be called under the context of
+the `Interceptor`, so you will have access to the methods and attributes
+described below.
+
 
 When generating stdin/stdin/stdout streams for the interceptor, if
 the call to `spawn` specifies `inherit` for their modes they will be
@@ -117,7 +140,7 @@ contains the command, args, and options that were actually called.
 
 ### interceptor.exit(code)
 
-Tells the interceptor what status code to exit with. Defaults to `0`.
+Tells the interceptor what status code to exit with.  Defaults to `0`.
 
 This can be either a number or a function that returns a number.  The
 function can also be async or return a Promise.  The function will be
@@ -125,7 +148,7 @@ called with `this` set to the interceptor.
 
 ### interceptor.signal(signal)
 
-Tells the interceptor what signal to exit with. Defaults to null (exit
+Tells the interceptor what signal to exit with.  Defaults to null (exit
 with no signal).
 
 This can be either a string or a function that returns a string.  The
