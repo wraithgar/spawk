@@ -47,12 +47,11 @@ const fixtures = {
         }
       }
     }
+
     if (Faker.random.boolean() || needed.env) {
       options.env = {}
-      const envs = Faker.random.number({ min: 0, max: 5 })
-      if (envs) {
-        options.env = Faker.random.words(envs).split(' ').reduce((options, option) => { options[option] = Faker.random.word(); return options }, {})
-      }
+      const envs = Faker.random.number({ min: 1, max: 5 })
+      options.env = Faker.random.words(envs).split(' ').reduce((options, option) => { options[option] = Faker.random.word(); return options }, {})
       if (typeof needed.env === 'object') {
         options.env = { ...options.env, ...needed.env }
       }
