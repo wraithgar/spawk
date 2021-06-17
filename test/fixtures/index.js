@@ -2,8 +2,14 @@
 
 const Faker = require('faker')
 const spawk = require('../../')
+const { promisify } = require('util')
+const promisifyTimeout = promisify(setTimeout)
 
 const fixtures = {
+  delay: (ms) => {
+    return promisifyTimeout(ms)
+  },
+
   spawk,
 
   command: () => Faker.random.word(),
@@ -67,9 +73,13 @@ const fixtures = {
     '/bin/ksh', '/bin/sh', '/bin/tcsh', '/bin/zsh', '/usr/local/bin/fish',
     'cmd.exe', 'command.com']),
 
-  signal: () => {
+  signal: (notThisOne) => {
     const signals = require('./signals.json')
-    return Faker.random.arrayElement(signals)
+    let signal = notThisOne
+    while (signal === notThisOne) {
+      signal = Faker.random.arrayElement(signals)
+    }
+    return signal
   },
 
   exitPromise: (spawned) => new Promise((resolve) => {

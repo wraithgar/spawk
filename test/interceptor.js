@@ -105,6 +105,64 @@ describe('interceptor', () => {
     })
   })
 
+  describe('exitOnSignal', () => {
+    it('no other signal configured', async () => {
+      const exitSignal = Fixtures.signal()
+      const exitCode = Fixtures.exitCode()
+
+      const command = Fixtures.command()
+      const mocked = spawk.spawn(command).exitOnSignal(exitSignal).exit(exitCode)
+      const spawned = cp.spawn(command)
+
+      await Fixtures.delay(100)
+      expect(spawned.exitCode).to.not.equal(exitCode)
+      spawned.kill(exitSignal)
+
+      const { signal } = await Fixtures.exitPromise(spawned)
+
+      expect(signal, 'exit signal').to.equal(exitSignal)
+      expect(mocked.called, 'spawned called').to.equal(true)
+    })
+
+    it('other signal configured first', async () => {
+      const exitSignal = Fixtures.signal()
+      const otherSignal = Fixtures.signal(exitSignal)
+      const exitCode = Fixtures.exitCode()
+
+      const command = Fixtures.command()
+      const mocked = spawk.spawn(command).signal(otherSignal).exitOnSignal(exitSignal).exit(exitCode)
+      const spawned = cp.spawn(command)
+
+      await Fixtures.delay(100)
+      expect(spawned.exitCode).to.not.equal(exitCode)
+      spawned.kill(exitSignal)
+
+      const { signal } = await Fixtures.exitPromise(spawned)
+
+      expect(signal, 'exit signal').to.equal(otherSignal)
+      expect(mocked.called, 'spawned called').to.equal(true)
+    })
+
+    it('other signal configured second', async () => {
+      const exitSignal = Fixtures.signal()
+      const otherSignal = Fixtures.signal(exitSignal)
+      const exitCode = Fixtures.exitCode()
+
+      const command = Fixtures.command()
+      const mocked = spawk.spawn(command).exitOnSignal(exitSignal).signal(otherSignal).exit(exitCode)
+      const spawned = cp.spawn(command)
+
+      await Fixtures.delay(100)
+      expect(spawned.exitCode).to.not.equal(exitCode)
+      spawned.kill(exitSignal)
+
+      const { signal } = await Fixtures.exitPromise(spawned)
+
+      expect(signal, 'exit signal').to.equal(otherSignal)
+      expect(mocked.called, 'spawned called').to.equal(true)
+    })
+  })
+
   describe('signal', () => {
     it('number', async () => {
       const exitSignal = Fixtures.signal()
