@@ -170,3 +170,8 @@ Tells the interceptor what to write to stderr before exit.
 This can be either a string, buffer, or a function that returns a string
 or buffer.  The function can also be async or return a Promise.  The
 function will be called with `this` set to the interceptor.
+
+### interceptor.delay(ms)
+
+Tells the interceptor to delay exiting for a given number of
+milliseconds.

@@ -92,6 +92,19 @@ describe('interceptor', () => {
     })
   })
 
+  describe('delay', () => {
+    it('number', async () => {
+      const delay = 250
+      const command = Fixtures.command()
+      spawk.spawn(command).delay(delay)
+      const before = new Date()
+      const spawned = cp.spawn(command)
+      await Fixtures.exitPromise(spawned)
+      const after = new Date()
+      expect(after - before).to.be.at.least(250)
+    })
+  })
+
   describe('signal', () => {
     it('number', async () => {
       const exitSignal = Fixtures.signal()
