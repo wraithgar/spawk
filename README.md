@@ -175,3 +175,10 @@ function will be called with `this` set to the interceptor.
 
 Tells the interceptor to delay exiting for a given number of
 milliseconds.
+
+### interceptor.exitOnSignal(signal)
+
+Tells the interceptor to delay exiting until it receives the given
+signal.  Setting this will ignore any delay you have set.  This will
+also be the signal that the interceptor exits with, unless you otherwise
+change it via `interceptor.signal`.
