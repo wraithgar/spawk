@@ -222,9 +222,9 @@ describe('interceptor', () => {
       expect(mocked.called, 'spawned called').to.equal(true)
       expect(caught.message, 'error message').to.equal(error.message)
       expect(spawned.killed).to.not.equal(true)
-      expect(spawned.stdin).to.equal(undefined)
-      expect(spawned.stdout).to.equal(undefined)
-      expect(spawned.stderr).to.equal(undefined)
+      expect(spawned.stdin).to.not.equal(undefined)
+      expect(spawned.stdout).to.not.equal(undefined)
+      expect(spawned.stderr).to.not.equal(undefined)
     })
   })
 
