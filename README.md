@@ -5,9 +5,9 @@ node.js child_process.spawn mocking library
 Spawk can be used to test modules that call spawn in isolation.
 
 Note: This module does its best to implement platform specific behaviors
-of (`child_process.spawn()`)[https://nodejs.org/api/child_process.html],
+of [`child_process.spawn()`](https://nodejs.org/api/child_process.html),
 anything that behaves differently is a
-(bug)[https://github.com/wraithgar/spawk/issues/new/choose].
+[bug](https://github.com/wraithgar/spawk/issues/new/choose).
 
 ## Example
 
