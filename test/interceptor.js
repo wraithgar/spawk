@@ -110,7 +110,7 @@ describe('interceptor', () => {
       expect(spawned.connected, 'connected').to.equal(true)
       await Fixtures.exitPromise(spawned)
       const after = new Date()
-      expect(after - before).to.be.at.least(delay)
+      expect(after - before).to.be.at.least(delay - 10)
     })
   })
 
@@ -193,7 +193,7 @@ describe('interceptor', () => {
       const spawned = cp.spawn(command)
       const caught = await Fixtures.errorPromise(spawned)
       const after = new Date()
-      expect(after - before).to.be.at.least(delay)
+      expect(after - before).to.be.at.least(delay - 10)
       expect(caught.message).to.equal(error.message)
     })
 
