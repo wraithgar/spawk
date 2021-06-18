@@ -23,11 +23,16 @@ describe('interceptor', () => {
     const spawnPromise = Fixtures.spawnPromise(spawned)
     const exitPromise = Fixtures.exitPromise(spawned)
     const disconnectPromise = Fixtures.disconnectPromise(spawned)
+    const closePromise = Fixtures.disconnectPromise(spawned)
+    const stdoutPromise = Fixtures.stdoutPromise(spawned)
+    const stderrPromise = Fixtures.stderrPromise(spawned)
+
     const { code, signal } = await exitPromise
-    await disconnectPromise
     await spawnPromise
-    const stdout = await Fixtures.stdoutPromise(spawned)
-    const stderr = await Fixtures.stderrPromise(spawned)
+    await disconnectPromise
+    await closePromise
+    const stdout = await stdoutPromise
+    const stderr = await stderrPromise
 
     expect(code, 'exit code').to.equal(0)
     expect(spawned.spawnfile, 'spawnfile').to.equal(command)
@@ -151,6 +156,7 @@ describe('interceptor', () => {
 
       expect(signal, 'exit signal').to.equal(otherSignal)
       expect(mocked.called, 'spawned called').to.equal(true)
+      expect(spawned.killed).to.equal(true)
     })
 
     it('other signal configured second', async () => {
@@ -182,6 +188,9 @@ describe('interceptor', () => {
       const caught = await Fixtures.errorPromise(spawned)
       expect(caught.message).to.equal(error.message)
       expect(spawned.connected, 'connected').to.equal(false)
+      expect(spawned.stdin).to.equal(undefined)
+      expect(spawned.stdout).to.equal(undefined)
+      expect(spawned.stderr).to.equal(undefined)
     })
 
     it('combined with delay', async () => {
@@ -195,6 +204,9 @@ describe('interceptor', () => {
       const after = new Date()
       expect(after - before).to.be.at.least(delay - 10)
       expect(caught.message).to.equal(error.message)
+      expect(spawned.stdin).to.equal(undefined)
+      expect(spawned.stdout).to.equal(undefined)
+      expect(spawned.stderr).to.equal(undefined)
     })
 
     it('combined with exitOnSignal', async () => {
@@ -209,6 +221,10 @@ describe('interceptor', () => {
       const caught = await errorPromise
       expect(mocked.called, 'spawned called').to.equal(true)
       expect(caught.message, 'error message').to.equal(error.message)
+      expect(spawned.killed).to.not.equal(true)
+      expect(spawned.stdin).to.equal(undefined)
+      expect(spawned.stdout).to.equal(undefined)
+      expect(spawned.stderr).to.equal(undefined)
     })
   })
 
