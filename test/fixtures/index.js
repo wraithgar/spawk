@@ -82,11 +82,15 @@ const fixtures = {
     return signal
   },
 
-  exitPromise: (spawned) => new Promise((resolve) => {
-    spawned.on('exit', (code, signal) => {
+  eventPromise: (event, spawned) => new Promise((resolve) => {
+    spawned.on(event, (code, signal) => {
       resolve({ code, signal })
     })
   }),
+
+  spawnPromise: (spawned) => fixtures.eventPromise('spawn', spawned),
+  exitPromise: (spawned) => fixtures.eventPromise('exit', spawned),
+  disconnectPromise: (spawned) => fixtures.eventPromise('disconnect', spawned),
 
   stdoutPromise: (spawned) => new Promise((resolve) => {
     let output
