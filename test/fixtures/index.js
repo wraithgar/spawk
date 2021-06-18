@@ -16,6 +16,10 @@ const fixtures = {
 
   args: () => Faker.random.words().split(' '),
 
+  error: () => {
+    return new Error(Faker.random.words())
+  },
+
   options: (needed = {}) => {
     const options = {}
     if (Faker.random.boolean() || needed.argv0 === true) {
@@ -82,15 +86,23 @@ const fixtures = {
     return signal
   },
 
-  eventPromise: (event, spawned) => new Promise((resolve) => {
-    spawned.on(event, (code, signal) => {
+  errorPromise: (spawned) => new Promise((resolve) => {
+    spawned.on('error', resolve)
+  }),
+
+  spawnPromise: (spawned) => new Promise((resolve) => {
+    spawned.on('spawn', resolve)
+  }),
+
+  disconnectPromise: (spawned) => new Promise((resolve) => {
+    spawned.on('disconnect', resolve)
+  }),
+
+  exitPromise: (spawned) => new Promise((resolve) => {
+    spawned.on('exit', (code, signal) => {
       resolve({ code, signal })
     })
   }),
-
-  spawnPromise: (spawned) => fixtures.eventPromise('spawn', spawned),
-  exitPromise: (spawned) => fixtures.eventPromise('exit', spawned),
-  disconnectPromise: (spawned) => fixtures.eventPromise('disconnect', spawned),
 
   stdoutPromise: (spawned) => new Promise((resolve) => {
     let output
