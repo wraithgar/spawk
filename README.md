@@ -182,3 +182,10 @@ Tells the interceptor to delay exiting until it receives the given
 signal.  Setting this will ignore any delay you have set.  This will
 also be the signal that the interceptor exits with, unless you otherwise
 change it via `interceptor.signal`.
+
+### interceptor.spawnError(error)
+
+Tells the interceptor to emit the given error object via the `error`
+event, instead of the normal `spawn` event.  The interceptor will not
+emit the `exit` or `close` events in this case, nor will it set up any
+stdio objects.

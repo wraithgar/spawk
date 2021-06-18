@@ -100,6 +100,18 @@ describe('interceptor', () => {
     })
   })
 
+  describe('spawnError', () => {
+    it('errors', async () => {
+      const command = Fixtures.command()
+      const error = Fixtures.error()
+      spawk.spawn(command).spawnError(error)
+      const spawned = cp.spawn(command)
+      const caught = await Fixtures.errorPromise(spawned)
+      expect(caught.message).to.equal(error.message)
+      expect(spawned.connected, 'connected').to.equal(false)
+    })
+
+  })
   describe('delay', () => {
     it('number', async () => {
       const delay = 100
