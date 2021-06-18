@@ -129,6 +129,7 @@ describe('interceptor', function () {
       const mocked = spawk.spawn(command).exitOnSignal(exitSignal)
       const spawned = cp.spawn(command)
 
+      expect(spawned.exitCode, 'exitCode').to.equal(null)
       await Fixtures.delay(50)
       spawned.kill(exitSignal)
 
