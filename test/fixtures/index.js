@@ -87,7 +87,9 @@ const fixtures = {
   },
 
   closePromise: (spawned) => new Promise((resolve) => {
-    spawned.on('close', resolve)
+    spawned.on('close', (code, signal) => {
+      resolve({ code, signal })
+    })
   }),
 
   disconnectPromise: (spawned) => new Promise((resolve) => {
