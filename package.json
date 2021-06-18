@@ -1,6 +1,6 @@
 {
   "name": "spawk",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "child_process.spawn mocking library",
   "main": "lib/spawk.js",
   "types": "./types/spawk.d.ts",
