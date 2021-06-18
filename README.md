@@ -151,6 +151,8 @@ This can be either a number or a function that returns a number.  The
 function can also be async or return a Promise.  The function will be
 called with `this` set to the interceptor.
 
+Calling this will clear out any signal you set with `interceptor.signal`
+
 ### interceptor.signal(signal)
 
 Tells the interceptor what signal to exit with.  Defaults to null (exit
