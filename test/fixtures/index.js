@@ -99,9 +99,7 @@ const fixtures = {
   }),
 
   exitPromise: (spawned) => new Promise((resolve) => {
-    spawned.on('exit', (code, signal) => {
-      resolve({ code, signal })
-    })
+    spawned.on('exit', resolve)
   }),
 
   spawnPromise: (spawned) => new Promise((resolve) => {
