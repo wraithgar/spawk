@@ -100,18 +100,6 @@ describe('interceptor', () => {
     })
   })
 
-  describe('spawnError', () => {
-    it('errors', async () => {
-      const command = Fixtures.command()
-      const error = Fixtures.error()
-      spawk.spawn(command).spawnError(error)
-      const spawned = cp.spawn(command)
-      const caught = await Fixtures.errorPromise(spawned)
-      expect(caught.message).to.equal(error.message)
-      expect(spawned.connected, 'connected').to.equal(false)
-    })
-  })
-
   describe('delay', () => {
     it('number', async () => {
       const delay = 100
@@ -182,6 +170,45 @@ describe('interceptor', () => {
 
       expect(signal, 'exit signal').to.equal(otherSignal)
       expect(mocked.called, 'spawned called').to.equal(true)
+    })
+  })
+
+  describe('spawnError', () => {
+    it('default', async () => {
+      const command = Fixtures.command()
+      const error = Fixtures.error()
+      spawk.spawn(command).spawnError(error)
+      const spawned = cp.spawn(command)
+      const caught = await Fixtures.errorPromise(spawned)
+      expect(caught.message).to.equal(error.message)
+      expect(spawned.connected, 'connected').to.equal(false)
+    })
+
+    it('combined with delay', async () => {
+      const delay = 100
+      const command = Fixtures.command()
+      const error = Fixtures.error()
+      spawk.spawn(command).spawnError(error).delay(delay)
+      const before = new Date()
+      const spawned = cp.spawn(command)
+      const caught = await Fixtures.errorPromise(spawned)
+      const after = new Date()
+      expect(after - before).to.be.at.least(delay)
+      expect(caught.message).to.equal(error.message)
+    })
+
+    it('combined with exitOnSignal', async () => {
+      const command = Fixtures.command()
+      const error = Fixtures.error()
+      const exitSignal = Fixtures.signal()
+      const mocked = spawk.spawn(command).exitOnSignal(exitSignal).spawnError(error)
+      const spawned = cp.spawn(command)
+      await Fixtures.delay(50)
+      const errorPromise = Fixtures.errorPromise(spawned)
+      spawned.kill(exitSignal)
+      const caught = await errorPromise
+      expect(mocked.called, 'spawned called').to.equal(true)
+      expect(caught.message, 'error message').to.equal(error.message)
     })
   })
 
