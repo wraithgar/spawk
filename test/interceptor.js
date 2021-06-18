@@ -27,7 +27,7 @@ describe('interceptor', function () {
     const stdoutPromise = Fixtures.stdoutPromise(spawned)
     const stderrPromise = Fixtures.stderrPromise(spawned)
 
-    const code = await exitPromise
+    const { code } = await exitPromise
     await spawnPromise
     await disconnectPromise
     await closePromise
@@ -57,7 +57,7 @@ describe('interceptor', function () {
     expect(mock.calledWith).to.equal(undefined)
 
     const spawned = cp.spawn(command, args, options)
-    const code = await Fixtures.exitPromise(spawned)
+    const { code } = await Fixtures.exitPromise(spawned)
 
     expect(code, 'exit code').to.equal(exitCode)
     expect(calledWith.command).to.equal(command)
@@ -73,7 +73,7 @@ describe('interceptor', function () {
       const command = Fixtures.command()
       const mock = spawk.spawn(command).exit(exitCode)
       const spawned = cp.spawn(command)
-      const code = await Fixtures.exitPromise(spawned)
+      const { code } = await Fixtures.exitPromise(spawned)
 
       expect(code, 'exit code').to.equal(exitCode)
       expect(mock.called).to.equal(true)
@@ -85,7 +85,7 @@ describe('interceptor', function () {
       const exitFn = () => exitCode
       const mock = spawk.spawn(command).exit(exitFn)
       const spawned = cp.spawn(command)
-      const code = await Fixtures.exitPromise(spawned)
+      const { code } = await Fixtures.exitPromise(spawned)
 
       expect(code, 'exit code').to.equal(exitCode)
       expect(mock.called).to.equal(true)
@@ -97,7 +97,7 @@ describe('interceptor', function () {
       const exitFn = () => Promise.resolve(exitCode)
       const mock = spawk.spawn(command).exit(exitFn)
       const spawned = cp.spawn(command)
-      const code = await Fixtures.exitPromise(spawned)
+      const { code } = await Fixtures.exitPromise(spawned)
 
       expect(code, 'exit code').to.equal(exitCode)
       expect(mock.called).to.equal(true)
@@ -132,7 +132,7 @@ describe('interceptor', function () {
       await Fixtures.delay(50)
       spawned.kill(exitSignal)
 
-      const signal = await Fixtures.exitPromise(spawned)
+      const { signal } = await Fixtures.exitPromise(spawned)
 
       expect(signal, 'exit signal').to.equal(exitSignal)
       expect(spawned.killed, 'killed').to.equal(true)
@@ -152,7 +152,7 @@ describe('interceptor', function () {
       await Fixtures.delay(50)
       spawned.kill(exitSignal)
 
-      const signal = await Fixtures.exitPromise(spawned)
+      const { signal } = await Fixtures.exitPromise(spawned)
 
       expect(signal, 'exit signal').to.equal(1)
       expect(spawned.killed, 'killed').to.equal(true)
@@ -173,7 +173,7 @@ describe('interceptor', function () {
       await Fixtures.delay(50)
       spawned.kill(exitSignal)
 
-      const signal = await Fixtures.exitPromise(spawned)
+      const { signal } = await Fixtures.exitPromise(spawned)
 
       expect(signal, 'exit signal').to.equal(otherSignal)
       expect(mocked.called, 'spawned called').to.equal(true)
@@ -194,7 +194,7 @@ describe('interceptor', function () {
       await Fixtures.delay(50)
       spawned.kill(exitSignal)
 
-      const signal = await Fixtures.exitPromise(spawned)
+      const { signal } = await Fixtures.exitPromise(spawned)
 
       expect(signal, 'exit signal').to.equal(1)
       expect(mocked.called, 'spawned called').to.equal(true)
@@ -215,7 +215,7 @@ describe('interceptor', function () {
       await Fixtures.delay(50)
       spawned.kill(exitSignal)
 
-      const signal = await Fixtures.exitPromise(spawned)
+      const { signal } = await Fixtures.exitPromise(spawned)
 
       expect(signal, 'exit signal').to.equal(otherSignal)
       expect(mocked.called, 'spawned called').to.equal(true)
@@ -235,7 +235,7 @@ describe('interceptor', function () {
       await Fixtures.delay(50)
       spawned.kill(exitSignal)
 
-      const signal = await Fixtures.exitPromise(spawned)
+      const { signal } = await Fixtures.exitPromise(spawned)
 
       expect(signal, 'exit signal').to.equal(1)
       expect(mocked.called, 'spawned called').to.equal(true)
@@ -300,7 +300,7 @@ describe('interceptor', function () {
       const command = Fixtures.command()
       const mock = spawk.spawn(command).signal(exitSignal)
       const spawned = cp.spawn(command)
-      const signal = await Fixtures.exitPromise(spawned)
+      const { signal } = await Fixtures.exitPromise(spawned)
 
       expect(signal, 'exit signal').to.equal(exitSignal)
       expect(mock.called).to.equal(true)
@@ -314,7 +314,7 @@ describe('interceptor', function () {
       const command = Fixtures.command()
       const mock = spawk.spawn(command).signal(exitSignal)
       const spawned = cp.spawn(command)
-      const signal = await Fixtures.exitPromise(spawned)
+      const { signal } = await Fixtures.exitPromise(spawned)
 
       expect(signal, 'exit signal').to.equal(1)
       expect(mock.called).to.equal(true)
@@ -329,7 +329,7 @@ describe('interceptor', function () {
       const signalFn = () => exitSignal
       const mock = spawk.spawn(command).signal(signalFn)
       const spawned = cp.spawn(command)
-      const signal = await Fixtures.exitPromise(spawned)
+      const { signal } = await Fixtures.exitPromise(spawned)
 
       expect(signal, 'exit signal').to.equal(exitSignal)
       expect(mock.called).to.equal(true)
@@ -344,7 +344,7 @@ describe('interceptor', function () {
       const signalFn = () => exitSignal
       const mock = spawk.spawn(command).signal(signalFn)
       const spawned = cp.spawn(command)
-      const signal = await Fixtures.exitPromise(spawned)
+      const { signal } = await Fixtures.exitPromise(spawned)
 
       expect(signal, 'exit signal').to.equal(1)
       expect(mock.called).to.equal(true)
@@ -359,7 +359,7 @@ describe('interceptor', function () {
       const signalFn = () => Promise.resolve(exitSignal)
       const mock = spawk.spawn(command).signal(signalFn)
       const spawned = cp.spawn(command)
-      const signal = await Fixtures.exitPromise(spawned)
+      const { signal } = await Fixtures.exitPromise(spawned)
 
       expect(signal, 'exit signal').to.equal(exitSignal)
       expect(mock.called).to.equal(true)
@@ -374,7 +374,7 @@ describe('interceptor', function () {
       const signalFn = () => Promise.resolve(exitSignal)
       const mock = spawk.spawn(command).signal(signalFn)
       const spawned = cp.spawn(command)
-      const signal = await Fixtures.exitPromise(spawned)
+      const { signal } = await Fixtures.exitPromise(spawned)
 
       expect(signal, 'exit signal').to.equal(1)
       expect(mock.called).to.equal(true)
@@ -387,7 +387,7 @@ describe('interceptor', function () {
       const output = Fixtures.output()
       const mock = spawk.spawn(command).stdout(output)
       const spawned = cp.spawn(command)
-      const code = await Fixtures.exitPromise(spawned)
+      const { code } = await Fixtures.exitPromise(spawned)
       const stdout = await Fixtures.stdoutPromise(spawned)
 
       expect(code, 'exit code').to.equal(0)
@@ -400,7 +400,7 @@ describe('interceptor', function () {
       const output = Fixtures.output()
       const mock = spawk.spawn(command).stdout(Buffer.from(output))
       const spawned = cp.spawn(command)
-      const code = await Fixtures.exitPromise(spawned)
+      const { code } = await Fixtures.exitPromise(spawned)
       const stdout = await Fixtures.stdoutPromise(spawned)
 
       expect(code, 'exit code').to.equal(0)
@@ -414,7 +414,7 @@ describe('interceptor', function () {
       const outputFn = () => output
       const mock = spawk.spawn(command).stdout(outputFn)
       const spawned = cp.spawn(command)
-      const code = await Fixtures.exitPromise(spawned)
+      const { code } = await Fixtures.exitPromise(spawned)
       const stdout = await Fixtures.stdoutPromise(spawned)
 
       expect(code, 'exit code').to.equal(0)
@@ -428,7 +428,7 @@ describe('interceptor', function () {
       const outputFn = () => Promise.resolve(output)
       const mock = spawk.spawn(command).stdout(outputFn)
       const spawned = cp.spawn(command)
-      const code = await Fixtures.exitPromise(spawned)
+      const { code } = await Fixtures.exitPromise(spawned)
       const stdout = await Fixtures.stdoutPromise(spawned)
 
       expect(code, 'exit code').to.equal(0)
@@ -443,7 +443,7 @@ describe('interceptor', function () {
       const output = Fixtures.output()
       const mock = spawk.spawn(command).stderr(output)
       const spawned = cp.spawn(command)
-      const code = await Fixtures.exitPromise(spawned)
+      const { code } = await Fixtures.exitPromise(spawned)
       const stderr = await Fixtures.stderrPromise(spawned)
 
       expect(code, 'exit code').to.equal(0)
@@ -456,7 +456,7 @@ describe('interceptor', function () {
       const output = Fixtures.output()
       const mock = spawk.spawn(command).stderr(Buffer.from(output))
       const spawned = cp.spawn(command)
-      const code = await Fixtures.exitPromise(spawned)
+      const { code } = await Fixtures.exitPromise(spawned)
       const stderr = await Fixtures.stderrPromise(spawned)
 
       expect(code, 'exit code').to.equal(0)
@@ -470,7 +470,7 @@ describe('interceptor', function () {
       const outputFn = () => output
       const mock = spawk.spawn(command).stderr(outputFn)
       const spawned = cp.spawn(command)
-      const code = await Fixtures.exitPromise(spawned)
+      const { code } = await Fixtures.exitPromise(spawned)
       const stderr = await Fixtures.stderrPromise(spawned)
 
       expect(code, 'exit code').to.equal(0)
@@ -484,7 +484,7 @@ describe('interceptor', function () {
       const outputFn = () => Promise.resolve(output)
       const mock = spawk.spawn(command).stderr(outputFn)
       const spawned = cp.spawn(command)
-      const code = await Fixtures.exitPromise(spawned)
+      const { code } = await Fixtures.exitPromise(spawned)
       const stderr = await Fixtures.stderrPromise(spawned)
 
       expect(code, 'exit code').to.equal(0)
