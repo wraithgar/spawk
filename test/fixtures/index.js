@@ -22,45 +22,45 @@ const fixtures = {
 
   options: (needed = {}) => {
     const options = {}
-    if (Faker.random.boolean() || needed.argv0 === true) {
+    if (Faker.datatype.boolean() || needed.argv0 === true) {
       options.argv0 = fixtures.command()
     }
-    if (Faker.random.boolean() || needed.serialization === true) {
+    if (Faker.datatype.boolean() || needed.serialization === true) {
       options.serialization = Faker.random.arrayElement(['json', 'advanced'])
     }
-    if (Faker.random.boolean()) {
+    if (Faker.datatype.boolean()) {
       options[Faker.random.arrayElement(['detached',
-        'windowsVerbatimArguments', 'windowsHide'])] = Faker.random.boolean()
+        'windowsVerbatimArguments', 'windowsHide'])] = Faker.datatype.boolean()
     }
-    if (Faker.random.boolean()) {
-      options[Faker.random.arrayElement(['uid', 'gid'])] = Faker.random.number()
+    if (Faker.datatype.boolean()) {
+      options[Faker.random.arrayElement(['uid', 'gid'])] = Faker.datatype.number()
     }
 
     // Because shell can be true there is no way to request a fixture that
     // explicitly has that as shell, just add it manually
-    if (Faker.random.boolean() || needed.shell === true) {
-      if (Faker.random.boolean()) {
-        options.shell = Faker.random.boolean()
+    if (Faker.datatype.boolean() || needed.shell === true) {
+      if (Faker.datatype.boolean()) {
+        options.shell = Faker.datatype.boolean()
       } else {
         options.shell = fixtures.shell()
       }
     }
-    if (Faker.random.boolean() || needed.stdio === true) {
-      if (Faker.random.boolean()) {
+    if (Faker.datatype.boolean() || needed.stdio === true) {
+      if (Faker.datatype.boolean()) {
         options.stdio = Faker.random.arrayElement(['pipe', 'overlapped', 'ignore', 'inherit'])
       } else {
         options.stdio = [null, null, null]
         for (let x = 0; x < 3; x++) {
-          if (Faker.random.boolean()) {
-            options.stdio[x] = Faker.random.arrayElement(['pipe', 'overlapped', 'ignore', 'ipc', 'inherit', Faker.random.number()])
+          if (Faker.datatype.boolean()) {
+            options.stdio[x] = Faker.random.arrayElement(['pipe', 'overlapped', 'ignore', 'ipc', 'inherit', Faker.datatype.number()])
           }
         }
       }
     }
 
-    if (Faker.random.boolean() || needed.env) {
+    if (Faker.datatype.boolean() || needed.env) {
       options.env = {}
-      const envs = Faker.random.number({ min: 1, max: 5 })
+      const envs = Faker.datatype.number({ min: 1, max: 5 })
       options.env = Faker.random.words(envs).split(' ').reduce((options, option) => { options[option] = Faker.random.word(); return options }, {})
       if (typeof needed.env === 'object') {
         options.env = { ...options.env, ...needed.env }
@@ -71,7 +71,7 @@ const fixtures = {
 
   output: () => Faker.random.words(),
 
-  exitCode: () => Faker.random.number({ min: 1, max: 255 }),
+  exitCode: () => Faker.datatype.number({ min: 1, max: 255 }),
 
   shell: () => Faker.random.arrayElement(['/bin/bash', '/bin/csh', '/bin/dash',
     '/bin/ksh', '/bin/sh', '/bin/tcsh', '/bin/zsh', '/usr/local/bin/fish',

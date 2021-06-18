@@ -110,8 +110,8 @@ describe('interceptor', () => {
       expect(caught.message).to.equal(error.message)
       expect(spawned.connected, 'connected').to.equal(false)
     })
-
   })
+
   describe('delay', () => {
     it('number', async () => {
       const delay = 100
