@@ -4,6 +4,11 @@ node.js child_process.spawn mocking library
 
 Spawk can be used to test modules that call spawn in isolation.
 
+Note: This module does its best to implement platform specific behaviors
+of (`child_process.spawn()`)[https://nodejs.org/api/child_process.html],
+anything that behaves differently is a
+(bug)[https://github.com/wraithgar/spawk/issues/new/choose].
+
 ## Example
 
 ```js
@@ -146,6 +151,8 @@ This can be either a number or a function that returns a number.  The
 function can also be async or return a Promise.  The function will be
 called with `this` set to the interceptor.
 
+Calling this will clear out any signal you set with `interceptor.signal`
+
 ### interceptor.signal(signal)
 
 Tells the interceptor what signal to exit with.  Defaults to null (exit
@@ -154,6 +161,8 @@ with no signal).
 This can be either a string or a function that returns a string.  The
 function can also be async or return a Promise.  The function will be
 called with `this` set to the interceptor.
+
+Calling this will clear out any code you set with `interceptor.exit`
 
 ### interceptor.stdout(data)
 
