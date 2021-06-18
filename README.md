@@ -188,4 +188,6 @@ change it via `interceptor.signal`.
 Tells the interceptor to emit the given error object via the `error`
 event, instead of the normal `spawn` event.  The interceptor will not
 emit the `exit` or `close` events in this case, nor will it set up any
-stdio objects.
+stdio objects.  This can be combined with `interceptor.delay` to delay
+this error, or with `interceptor.exitOnSignal` to error when the given
+signal is received (replicating a process that can not be killed).

@@ -23,11 +23,16 @@ describe('interceptor', () => {
     const spawnPromise = Fixtures.spawnPromise(spawned)
     const exitPromise = Fixtures.exitPromise(spawned)
     const disconnectPromise = Fixtures.disconnectPromise(spawned)
+    const closePromise = Fixtures.disconnectPromise(spawned)
+    const stdoutPromise = Fixtures.stdoutPromise(spawned)
+    const stderrPromise = Fixtures.stderrPromise(spawned)
+
     const { code, signal } = await exitPromise
-    await disconnectPromise
     await spawnPromise
-    const stdout = await Fixtures.stdoutPromise(spawned)
-    const stderr = await Fixtures.stderrPromise(spawned)
+    await disconnectPromise
+    await closePromise
+    const stdout = await stdoutPromise
+    const stderr = await stderrPromise
 
     expect(code, 'exit code').to.equal(0)
     expect(spawned.spawnfile, 'spawnfile').to.equal(command)
@@ -100,18 +105,6 @@ describe('interceptor', () => {
     })
   })
 
-  describe('spawnError', () => {
-    it('errors', async () => {
-      const command = Fixtures.command()
-      const error = Fixtures.error()
-      spawk.spawn(command).spawnError(error)
-      const spawned = cp.spawn(command)
-      const caught = await Fixtures.errorPromise(spawned)
-      expect(caught.message).to.equal(error.message)
-      expect(spawned.connected, 'connected').to.equal(false)
-    })
-  })
-
   describe('delay', () => {
     it('number', async () => {
       const delay = 100
@@ -122,7 +115,7 @@ describe('interceptor', () => {
       expect(spawned.connected, 'connected').to.equal(true)
       await Fixtures.exitPromise(spawned)
       const after = new Date()
-      expect(after - before).to.be.at.least(delay)
+      expect(after - before).to.be.at.least(delay - 10)
     })
   })
 
@@ -163,6 +156,7 @@ describe('interceptor', () => {
 
       expect(signal, 'exit signal').to.equal(otherSignal)
       expect(mocked.called, 'spawned called').to.equal(true)
+      expect(spawned.killed).to.equal(true)
     })
 
     it('other signal configured second', async () => {
@@ -182,6 +176,55 @@ describe('interceptor', () => {
 
       expect(signal, 'exit signal').to.equal(otherSignal)
       expect(mocked.called, 'spawned called').to.equal(true)
+    })
+  })
+
+  describe('spawnError', () => {
+    it('default', async () => {
+      const command = Fixtures.command()
+      const error = Fixtures.error()
+      spawk.spawn(command).spawnError(error)
+      const spawned = cp.spawn(command)
+      const caught = await Fixtures.errorPromise(spawned)
+      expect(caught.message).to.equal(error.message)
+      expect(spawned.connected, 'connected').to.equal(false)
+      expect(spawned.stdin).to.equal(undefined)
+      expect(spawned.stdout).to.equal(undefined)
+      expect(spawned.stderr).to.equal(undefined)
+    })
+
+    it('combined with delay', async () => {
+      const delay = 100
+      const command = Fixtures.command()
+      const error = Fixtures.error()
+      spawk.spawn(command).spawnError(error).delay(delay)
+      const before = new Date()
+      const spawned = cp.spawn(command)
+      const caught = await Fixtures.errorPromise(spawned)
+      const after = new Date()
+      expect(after - before).to.be.at.least(delay - 10)
+      expect(caught.message).to.equal(error.message)
+      expect(spawned.stdin).to.equal(undefined)
+      expect(spawned.stdout).to.equal(undefined)
+      expect(spawned.stderr).to.equal(undefined)
+    })
+
+    it('combined with exitOnSignal', async () => {
+      const command = Fixtures.command()
+      const error = Fixtures.error()
+      const exitSignal = Fixtures.signal()
+      const mocked = spawk.spawn(command).exitOnSignal(exitSignal).spawnError(error)
+      const spawned = cp.spawn(command)
+      await Fixtures.delay(50)
+      const errorPromise = Fixtures.errorPromise(spawned)
+      spawned.kill(exitSignal)
+      const caught = await errorPromise
+      expect(mocked.called, 'spawned called').to.equal(true)
+      expect(caught.message, 'error message').to.equal(error.message)
+      expect(spawned.killed).to.not.equal(true)
+      expect(spawned.stdin).to.not.equal(undefined)
+      expect(spawned.stdout).to.not.equal(undefined)
+      expect(spawned.stderr).to.not.equal(undefined)
     })
   })
 

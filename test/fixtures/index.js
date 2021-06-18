@@ -86,22 +86,26 @@ const fixtures = {
     return signal
   },
 
-  errorPromise: (spawned) => new Promise((resolve) => {
-    spawned.on('error', resolve)
-  }),
-
-  spawnPromise: (spawned) => new Promise((resolve) => {
-    spawned.on('spawn', resolve)
+  closePromise: (spawned) => new Promise((resolve) => {
+    spawned.on('close', resolve)
   }),
 
   disconnectPromise: (spawned) => new Promise((resolve) => {
     spawned.on('disconnect', resolve)
   }),
 
+  errorPromise: (spawned) => new Promise((resolve) => {
+    spawned.on('error', resolve)
+  }),
+
   exitPromise: (spawned) => new Promise((resolve) => {
     spawned.on('exit', (code, signal) => {
       resolve({ code, signal })
     })
+  }),
+
+  spawnPromise: (spawned) => new Promise((resolve) => {
+    spawned.on('spawn', resolve)
   }),
 
   stdoutPromise: (spawned) => new Promise((resolve) => {
