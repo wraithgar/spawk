@@ -152,9 +152,10 @@ describe('interceptor', function () {
       await Fixtures.delay(50)
       spawned.kill(exitSignal)
 
-      const { signal } = await Fixtures.exitPromise(spawned)
+      const { code, signal } = await Fixtures.exitPromise(spawned)
 
-      expect(signal, 'exit signal').to.equal(1)
+      expect(code, 'exit code').to.equal(1)
+      expect(signal, 'exit signal').to.equal(undefined)
       expect(spawned.killed, 'killed').to.equal(true)
       expect(mocked.called, 'spawned called').to.equal(true)
     })
@@ -194,9 +195,10 @@ describe('interceptor', function () {
       await Fixtures.delay(50)
       spawned.kill(exitSignal)
 
-      const { signal } = await Fixtures.exitPromise(spawned)
+      const { code, signal } = await Fixtures.exitPromise(spawned)
 
-      expect(signal, 'exit signal').to.equal(1)
+      expect(code, 'exit code').to.equal(1)
+      expect(signal, 'exit signal').to.equal(undefined)
       expect(mocked.called, 'spawned called').to.equal(true)
       expect(spawned.killed).to.equal(true)
     })
@@ -235,9 +237,10 @@ describe('interceptor', function () {
       await Fixtures.delay(50)
       spawned.kill(exitSignal)
 
-      const { signal } = await Fixtures.exitPromise(spawned)
+      const { code, signal } = await Fixtures.exitPromise(spawned)
 
-      expect(signal, 'exit signal').to.equal(1)
+      expect(code, 'exit code').to.equal(1)
+      expect(signal, 'exit signal').to.equal(undefined)
       expect(mocked.called, 'spawned called').to.equal(true)
     })
   })
@@ -314,9 +317,10 @@ describe('interceptor', function () {
       const command = Fixtures.command()
       const mock = spawk.spawn(command).signal(exitSignal)
       const spawned = cp.spawn(command)
-      const { signal } = await Fixtures.exitPromise(spawned)
+      const { code, signal } = await Fixtures.exitPromise(spawned)
 
-      expect(signal, 'exit signal').to.equal(1)
+      expect(code, 'exit code').to.equal(1)
+      expect(signal, 'exit signal').to.equal(undefined)
       expect(mock.called).to.equal(true)
     })
 
@@ -344,9 +348,10 @@ describe('interceptor', function () {
       const signalFn = () => exitSignal
       const mock = spawk.spawn(command).signal(signalFn)
       const spawned = cp.spawn(command)
-      const { signal } = await Fixtures.exitPromise(spawned)
+      const { code, signal } = await Fixtures.exitPromise(spawned)
 
-      expect(signal, 'exit signal').to.equal(1)
+      expect(code, 'exit code').to.equal(1)
+      expect(signal, 'exit signal').to.equal(undefined)
       expect(mock.called).to.equal(true)
     })
 
@@ -374,9 +379,10 @@ describe('interceptor', function () {
       const signalFn = () => Promise.resolve(exitSignal)
       const mock = spawk.spawn(command).signal(signalFn)
       const spawned = cp.spawn(command)
-      const { signal } = await Fixtures.exitPromise(spawned)
+      const { code, signal } = await Fixtures.exitPromise(spawned)
 
-      expect(signal, 'exit signal').to.equal(1)
+      expect(code, 'exit code').to.equal(1)
+      expect(signal, 'exit signal').to.equal(undefined)
       expect(mock.called).to.equal(true)
     })
   })
