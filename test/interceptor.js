@@ -556,19 +556,24 @@ describe('interceptor', function () {
 
     it('array: inherit, pipe, pipe', function () {
       const command = Fixtures.command()
+      const stdio = ['inherit', 'pipe', 'pipe']
       spawk.spawn(command)
-      const spawned = cp.spawn(command, null, { stdio: ['inherit', 'pipe', 'pipe'] })
+      const spawned = cp.spawn(command, null, { stdio })
       expect(spawned.stdin, 'spawed stdin').to.equal(null)
       expect(spawned.stdout, 'spawed stdout').to.not.equal(null)
       expect(spawned.stderr, 'spawed stderr').to.not.equal(null)
+      expect(stdio, 'original stdio array').to.deep.equal(['inherit', 'pipe', 'pipe'])
     })
+
     it('array: pipe, inherit, pipe', function () {
       const command = Fixtures.command()
+      const stdio = ['pipe', 'inherit', 'pipe']
       spawk.spawn(command)
-      const spawned = cp.spawn(command, null, { stdio: ['pipe', 'inherit', 'pipe'] })
+      const spawned = cp.spawn(command, null, { stdio })
       expect(spawned.stdin, 'spawed stdin').to.not.equal(null)
       expect(spawned.stdout, 'spawed stdout').to.equal(null)
       expect(spawned.stderr, 'spawed stderr').to.not.equal(null)
+      expect(stdio, 'original stdio array').to.deep.equal(['pipe', 'inherit', 'pipe'])
     })
   })
 })
