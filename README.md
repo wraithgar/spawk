@@ -82,10 +82,9 @@ function, it will be passed one parameter: the options passed to
 the `Interceptor`, so you will have access to the methods and attributes
 described below.
 
-
-When generating stdin/stdin/stdout streams for the interceptor, if
-the call to `spawn` specifies `inherit` for their modes they will be
-mapped to process.stdin etc.
+When generating stdin/stdin/stdout streams for the interceptor, if the
+call to `spawn` specifies `inherit` for their modes they will not be
+created.
 
 ### spawk.allowUnmatched()
 
@@ -143,6 +142,10 @@ Helpful string representation of the interceptor.
 When the interceptor has been called, this will be an object that
 contains the command, args, and options that were actually called.
 
+### interceptor.signals
+
+Array containing any signals that the interceptor received via `.kill()`
+
 ### interceptor.exit(code)
 
 Tells the interceptor what status code to exit with.  Defaults to `0`.
@@ -151,7 +154,8 @@ This can be either a number or a function that returns a number.  The
 function can also be async or return a Promise.  The function will be
 called with `this` set to the interceptor.
 
-Calling this will clear out any signal you set with `interceptor.signal`
+Calling this will clear out any signal previously set with
+`interceptor.signal`
 
 ### interceptor.signal(signal)
 
@@ -162,7 +166,8 @@ This can be either a string or a function that returns a string.  The
 function can also be async or return a Promise.  The function will be
 called with `this` set to the interceptor.
 
-Calling this will clear out any code you set with `interceptor.exit`
+Calling this will clear out any code previously set with
+`interceptor.exit`
 
 ### interceptor.stdout(data)
 
