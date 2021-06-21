@@ -2,6 +2,7 @@
 
 const Faker = require('faker')
 const spawk = require('../../')
+const stream = require('stream')
 const { promisify } = require('util')
 const promisifyTimeout = promisify(setTimeout)
 
@@ -52,7 +53,7 @@ const fixtures = {
         options.stdio = [null, null, null]
         for (let x = 0; x < 3; x++) {
           if (Faker.datatype.boolean()) {
-            options.stdio[x] = Faker.random.arrayElement(['pipe', 'overlapped', 'ignore', 'ipc', 'inherit', Faker.datatype.number()])
+            options.stdio[x] = Faker.random.arrayElement(['pipe', 'overlapped', 'ignore', 'inherit'])
           }
         }
       }
@@ -68,6 +69,8 @@ const fixtures = {
     }
     return options
   },
+
+  stream: () => new stream.Stream(),
 
   output: () => Faker.random.words(),
 

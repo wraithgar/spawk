@@ -107,6 +107,7 @@ describe('interceptor', function () {
   describe('delay', function () {
     it('number', async function () {
       const delay = 100
+      this.slow(delay * 3)
       const command = Fixtures.command()
       spawk.spawn(command).delay(delay)
       const before = new Date()
@@ -123,6 +124,10 @@ describe('interceptor', function () {
       if (process.platform === 'win32') {
         this.skip()
       }
+
+      const delay = 50
+      this.slow(delay * 3)
+
       const exitSignal = Fixtures.signal()
 
       const command = Fixtures.command()
@@ -130,7 +135,7 @@ describe('interceptor', function () {
       const spawned = cp.spawn(command)
 
       expect(spawned.exitCode, 'exitCode').to.equal(null)
-      await Fixtures.delay(50)
+      await Fixtures.delay(delay)
       spawned.kill(exitSignal)
 
       const { signal } = await Fixtures.exitPromise(spawned)
@@ -145,13 +150,17 @@ describe('interceptor', function () {
       if (process.platform !== 'win32') {
         this.skip()
       }
+
+      const delay = 50
+      this.slow(delay * 3)
+
       const exitSignal = Fixtures.signal()
 
       const command = Fixtures.command()
       const mocked = spawk.spawn(command).exitOnSignal(exitSignal)
       const spawned = cp.spawn(command)
 
-      await Fixtures.delay(50)
+      await Fixtures.delay(delay)
       spawned.kill(exitSignal)
 
       const { code, signal } = await Fixtures.exitPromise(spawned)
@@ -166,6 +175,10 @@ describe('interceptor', function () {
       if (process.platform === 'win32') {
         this.skip()
       }
+
+      const delay = 50
+      this.slow(delay * 3)
+
       const exitSignal = Fixtures.signal()
       const otherSignal = Fixtures.signal(exitSignal)
 
@@ -174,7 +187,7 @@ describe('interceptor', function () {
       const spawned = cp.spawn(command)
 
       spawned.kill(otherSignal)
-      await Fixtures.delay(50)
+      await Fixtures.delay(delay)
       expect(spawned.killed).to.equal(false)
       spawned.kill(exitSignal)
 
@@ -191,6 +204,10 @@ describe('interceptor', function () {
       if (process.platform !== 'win32') {
         this.skip()
       }
+
+      const delay = 50
+      this.slow(delay * 3)
+
       const exitSignal = Fixtures.signal()
       const otherSignal = Fixtures.signal(exitSignal)
 
@@ -199,7 +216,7 @@ describe('interceptor', function () {
       const spawned = cp.spawn(command)
 
       spawned.kill(otherSignal)
-      await Fixtures.delay(50)
+      await Fixtures.delay(delay)
       expect(spawned.killed).to.equal(false)
       spawned.kill(exitSignal)
 
@@ -217,6 +234,10 @@ describe('interceptor', function () {
       if (process.platform === 'win32') {
         this.skip()
       }
+
+      const delay = 50
+      this.slow(delay * 3)
+
       const exitSignal = Fixtures.signal()
       const otherSignal = Fixtures.signal(exitSignal)
 
@@ -224,7 +245,7 @@ describe('interceptor', function () {
       const mocked = spawk.spawn(command).exitOnSignal(exitSignal).signal(otherSignal)
       const spawned = cp.spawn(command)
 
-      await Fixtures.delay(50)
+      await Fixtures.delay(delay)
       spawned.kill(exitSignal)
 
       const { signal } = await Fixtures.exitPromise(spawned)
@@ -237,6 +258,10 @@ describe('interceptor', function () {
       if (process.platform !== 'win32') {
         this.skip()
       }
+
+      const delay = 50
+      this.slow(delay * 3)
+
       const exitSignal = Fixtures.signal()
       const otherSignal = Fixtures.signal(exitSignal)
 
@@ -244,7 +269,7 @@ describe('interceptor', function () {
       const mocked = spawk.spawn(command).exitOnSignal(exitSignal).signal(otherSignal)
       const spawned = cp.spawn(command)
 
-      await Fixtures.delay(50)
+      await Fixtures.delay(delay)
       spawned.kill(exitSignal)
 
       const { code, signal } = await Fixtures.exitPromise(spawned)
@@ -271,6 +296,7 @@ describe('interceptor', function () {
 
     it('combined with delay', async function () {
       const delay = 100
+      this.slow(delay * 3)
       const command = Fixtures.command()
       const error = Fixtures.error()
       spawk.spawn(command).spawnError(error).delay(delay)
@@ -286,12 +312,14 @@ describe('interceptor', function () {
     })
 
     it('combined with exitOnSignal', async function () {
+      const delay = 50
+      this.slow(delay * 3)
       const command = Fixtures.command()
       const error = Fixtures.error()
       const exitSignal = Fixtures.signal()
       const mocked = spawk.spawn(command).exitOnSignal(exitSignal).spawnError(error)
       const spawned = cp.spawn(command)
-      await Fixtures.delay(50)
+      await Fixtures.delay(delay)
       const errorPromise = Fixtures.errorPromise(spawned)
       spawned.kill(exitSignal)
       const caught = await errorPromise
@@ -583,6 +611,28 @@ describe('interceptor', function () {
       expect(spawned.stdout, 'spawed stdout').to.equal(null)
       expect(spawned.stderr, 'spawed stderr').to.not.equal(null)
       expect(stdio, 'original stdio array').to.deep.equal(['pipe', 'inherit', 'pipe'])
+    })
+
+    it('number', function () {
+      const command = Fixtures.command()
+      const stdio = [1, 2, 3]
+      spawk.spawn(command)
+      expect(() => { cp.spawn(command, null, { stdio }) }).to.throw('Integer stdio not supported')
+    })
+
+    it('stream', function () {
+      const command = Fixtures.command()
+      const stdio = [Fixtures.stream(), 'pipe', 'pipe']
+      spawk.spawn(command)
+      expect(() => { cp.spawn(command, null, { stdio }) }).to.throw('Stream stdio not supported')
+    })
+
+    it('random word', function () {
+      const command = Fixtures.command()
+      const badStdio = Fixtures.command()
+      const stdio = [badStdio, 'pipe', 'pipe']
+      spawk.spawn(command)
+      expect(() => { cp.spawn(command, null, { stdio }) }).to.throw(`Invalid stdio: ${badStdio}`)
     })
   })
 })
