@@ -205,3 +205,14 @@ emit the `exit` or `close` events in this case, nor will it set up any
 stdio objects.  This can be combined with `interceptor.delay` to delay
 this error, or with `interceptor.exitOnSignal` to error when the given
 signal is received (replicating a process that can not be killed).
+
+### interceptor.jestCompatibilityMode()
+
+Tells the interceptor to emit the `exit` event *after* it writes to the
+stdio streams.  Normally spawk will emit `exit`, write to stdio, and
+then emit `close`.  Unfortunately [jest](https://jestjs.io/) does not
+wait for the `close` event, only the `exit` event, so spawk does not
+work there.  This is a bug in jest.  To work around that, this mode was
+added.  For more information about the close event see the
+[child_process `close` event](https://nodejs.org/api/child_process.html#event-close)
+docs.

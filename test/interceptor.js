@@ -635,4 +635,19 @@ describe('interceptor', function () {
       expect(() => { cp.spawn(command, null, { stdio }) }).to.throw(`Invalid stdio: ${badStdio}`)
     })
   })
+
+  it('jestcompatibilitymode', async function () {
+    const command = Fixtures.command()
+    const output = Fixtures.output()
+    const mock = spawk.spawn(command).jestCompatibilityMode().stdout(output)
+    const spawned = cp.spawn(command)
+
+    const exitPromise = Fixtures.exitPromise(spawned)
+    // ONLY wait on exit
+    const { code } = await exitPromise
+    const stdout = await Fixtures.stdoutPromise(spawned)
+    expect(code, 'exit code').to.equal(0)
+    expect(stdout).to.equal(output)
+    expect(mock.called, 'mocked child called').to.equal(true)
+  })
 })
