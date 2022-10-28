@@ -332,6 +332,106 @@ describe('interceptor', function () {
     })
   })
 
+  describe('stdoutEmit', function () {
+    it('emits event only', async function () {
+      const command = Fixtures.command()
+      const mocked = spawk.spawn(command).stdoutEmit('error')
+      const spawned = cp.spawn(command)
+      let stdoutOne
+      spawned.stdout.on('error', (one) => {
+        stdoutOne = one
+      })
+      const { code } = await Fixtures.exitPromise(spawned)
+      expect(stdoutOne, 'first emit parameter').to.equal(undefined)
+      expect(code, 'exit code').to.equal(0)
+      expect(mocked.called, 'spawned called').to.equal(true)
+    })
+
+    it('emits single arg', async function () {
+      const command = Fixtures.command()
+      const extra = Fixtures.command()
+      const mocked = spawk.spawn(command).stdoutEmit('error', extra)
+      const spawned = cp.spawn(command)
+      let stdoutOne
+      spawned.stdout.on('error', (one) => {
+        stdoutOne = one
+      })
+      const { code } = await Fixtures.exitPromise(spawned)
+      expect(stdoutOne, 'first emit parameter').to.equal(extra)
+      expect(code, 'exit code').to.equal(0)
+      expect(mocked.called, 'spawned called').to.equal(true)
+    })
+
+    it('emits multiple args', async function () {
+      const command = Fixtures.command()
+      const extra = Fixtures.command()
+      const error = Fixtures.error()
+      const mocked = spawk.spawn(command).stdoutEmit('error', extra, error)
+      const spawned = cp.spawn(command)
+      let stdoutOne
+      let stdoutTwo
+      spawned.stdout.on('error', (one, two) => {
+        stdoutOne = one
+        stdoutTwo = two
+      })
+      const { code } = await Fixtures.exitPromise(spawned)
+      expect(stdoutOne, 'first emit parameter').to.equal(extra)
+      expect(stdoutTwo, 'second emit parameter').to.equal(error)
+      expect(code, 'exit code').to.equal(0)
+      expect(mocked.called, 'spawned called').to.equal(true)
+    })
+  })
+
+  describe('stderrEmit', function () {
+    it('emits event only', async function () {
+      const command = Fixtures.command()
+      const mocked = spawk.spawn(command).stderrEmit('error')
+      const spawned = cp.spawn(command)
+      let stderrOne
+      spawned.stderr.on('error', (one) => {
+        stderrOne = one
+      })
+      const { code } = await Fixtures.exitPromise(spawned)
+      expect(stderrOne, 'first emit parameter').to.equal(undefined)
+      expect(code, 'exit code').to.equal(0)
+      expect(mocked.called, 'spawned called').to.equal(true)
+    })
+
+    it('emits single arg', async function () {
+      const command = Fixtures.command()
+      const extra = Fixtures.command()
+      const mocked = spawk.spawn(command).stderrEmit('error', extra)
+      const spawned = cp.spawn(command)
+      let stderrOne
+      spawned.stderr.on('error', (one) => {
+        stderrOne = one
+      })
+      const { code } = await Fixtures.exitPromise(spawned)
+      expect(stderrOne, 'first emit parameter').to.equal(extra)
+      expect(code, 'exit code').to.equal(0)
+      expect(mocked.called, 'spawned called').to.equal(true)
+    })
+
+    it('emits multiple args', async function () {
+      const command = Fixtures.command()
+      const extra = Fixtures.command()
+      const error = Fixtures.error()
+      const mocked = spawk.spawn(command).stderrEmit('error', extra, error)
+      const spawned = cp.spawn(command)
+      let stderrOne
+      let stderrTwo
+      spawned.stderr.on('error', (one, two) => {
+        stderrOne = one
+        stderrTwo = two
+      })
+      const { code } = await Fixtures.exitPromise(spawned)
+      expect(stderrOne, 'first emit parameter').to.equal(extra)
+      expect(stderrTwo, 'second emit parameter').to.equal(error)
+      expect(code, 'exit code').to.equal(0)
+      expect(mocked.called, 'spawned called').to.equal(true)
+    })
+  })
+
   describe('signal', function () {
     it('number - non windows', async function () {
       if (process.platform === 'win32') {
