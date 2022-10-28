@@ -205,3 +205,13 @@ emit the `exit` or `close` events in this case, nor will it set up any
 stdio objects.  This can be combined with `interceptor.delay` to delay
 this error, or with `interceptor.exitOnSignal` to error when the given
 signal is received (replicating a process that can not be killed).
+
+### interceptor.stdoutEmit(eventName, [...args])
+
+Tells the interceptor to emit a given event from stdout with any number
+of arguments.
+
+### interceptor.stderrEmit(eventName, [...args])
+
+Tells the interceptor to emit a given event from stderr with any number
+of arguments.
