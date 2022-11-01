@@ -99,17 +99,17 @@ describe('spawk', () => {
         const command = Fixtures.command()
         const args = Fixtures.args()
         const options = Fixtures.options()
-        let calledWith
+        let spawnArgs
         let calledContext
         const mock = spawk.spawn(function () {
-          calledWith = arguments
+          spawnArgs = arguments
           calledContext = this
           return true
         })
         cp.spawn(command, args, options)
-        expect(calledWith[0], 'first parameter passed to function').to.equal(command)
-        expect(calledWith[1], 'second parameter passed to function').to.equal(args)
-        expect(calledWith[2], 'third parameter passed to function').to.equal(options)
+        expect(spawnArgs[0], 'first parameter passed to function').to.equal(command)
+        expect(spawnArgs[1], 'second parameter passed to function').to.equal(args)
+        expect(spawnArgs[2], 'third parameter passed to function').to.equal(options)
         expect(spawk.done(), 'done').to.equal(true)
         expect(calledContext).to.equal(mock)
       })
@@ -154,16 +154,16 @@ describe('spawk', () => {
       it('matching function', () => {
         const command = Fixtures.command()
         const args = Fixtures.args()
-        let calledWith
+        let spawnArgs
         let calledContext
 
         const mock = spawk.spawn(command, function () {
-          calledWith = arguments
+          spawnArgs = arguments
           calledContext = this
           return true
         })
         cp.spawn(command, args)
-        expect(calledWith[0], 'first parameter passed to function').to.equal(args)
+        expect(spawnArgs[0], 'first parameter passed to function').to.equal(args)
         expect(spawk.done(), 'done').to.equal(true)
         expect(calledContext).to.equal(mock)
       })
@@ -224,16 +224,16 @@ describe('spawk', () => {
       it('matching function', () => {
         const command = Fixtures.command()
         const options = Fixtures.options()
-        let calledWith
+        let spawnArgs
         let calledContext
 
         const mock = spawk.spawn(command, null, function () {
-          calledWith = arguments
+          spawnArgs = arguments
           calledContext = this
           return true
         })
         cp.spawn(command, null, options)
-        expect(calledWith[0], 'first parameter passed to function').to.equal(options)
+        expect(spawnArgs[0], 'first parameter passed to function').to.equal(options)
         expect(spawk.done(), 'done').to.equal(true)
         expect(calledContext).to.equal(mock)
       })

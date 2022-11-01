@@ -42,29 +42,54 @@ describe('interceptor', function () {
     expect(mock.called, 'mocked child called').to.equal(true)
   })
 
-  it('calledWith', async function () {
-    let calledWith
-    const exitCode = Fixtures.exitCode()
-    const command = Fixtures.command()
-    const args = Fixtures.args()
-    const options = Fixtures.options()
-    const exitFn = function () {
-      calledWith = this.calledWith
-      return exitCode
-    }
-    const mock = spawk.spawn(command).exit(exitFn)
+  describe('calledWith', function () {
+    it('is attached to `this`, has spawn args', async function () {
+      let calledWith
+      const exitCode = Fixtures.exitCode()
+      const command = Fixtures.command()
+      const args = Fixtures.args()
+      const options = Fixtures.options()
+      const exitFn = function () {
+        calledWith = this.calledWith
+        return exitCode
+      }
+      const mock = spawk.spawn(command).exit(exitFn)
 
-    expect(mock.calledWith).to.equal(undefined)
+      expect(mock.calledWith).to.equal(undefined)
 
-    const spawned = cp.spawn(command, args, options)
-    const { code } = await Fixtures.exitPromise(spawned)
+      const spawned = cp.spawn(command, args, options)
+      const { code } = await Fixtures.exitPromise(spawned)
 
-    expect(code, 'exit code').to.equal(exitCode)
-    expect(calledWith.command).to.equal(command)
-    expect(calledWith.args).to.equal(args)
-    expect(calledWith.options).to.equal(options)
-    expect(spawned.spawnargs, 'spawnargs').to.equal(args)
-    expect(mock.called).to.equal(true)
+      expect(code, 'exit code').to.equal(exitCode)
+      expect(calledWith).to.equal(mock.calledWith)
+      expect(calledWith.command).to.equal(command)
+      expect(calledWith.args).to.equal(args)
+      expect(calledWith.options).to.equal(options)
+      expect(spawned.spawnargs, 'spawnargs').to.equal(args)
+      expect(mock.called).to.equal(true)
+    })
+
+    it('has stdios in pipe mode', async function () {
+      const command = Fixtures.command()
+      const args = Fixtures.args()
+      const options = Fixtures.options()
+      options.stdio = 'pipe'
+      const mock = spawk.spawn(command)
+      const spawned = cp.spawn(command, args, options)
+      expect(mock.calledWith.stdio[0]).to.equal(spawned.stdin)
+      expect(mock.calledWith.stdio[1]).to.equal(spawned.stdout)
+      expect(mock.calledWith.stdio[2]).to.equal(spawned.stderr)
+    })
+
+    it('no stdios in inherit mode', async function () {
+      const command = Fixtures.command()
+      const args = Fixtures.args()
+      const options = Fixtures.options()
+      options.stdio = 'inherit'
+      const mock = spawk.spawn(command)
+      cp.spawn(command, args, options)
+      expect(mock.calledWith.stdio).to.deep.equal([null, null, null])
+    })
   })
 
   describe('exit', function () {
