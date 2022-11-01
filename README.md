@@ -140,7 +140,14 @@ Helpful string representation of the interceptor.
 ### interceptor.calledWith
 
 When the interceptor has been called, this will be an object that
-contains the command, args, and options that were actually called.
+contains the `command`, `args`, and `options` that were actually called.
+
+It will also contain an array with the `stdio` objects that the spawned
+process got, provided it was not called with `inherit` (aka if `pipe`
+was used).  You can use this to assert for instance that certain things
+were written to the stdin of your spawned process.
+
+`stdio` will be an array that contains [`stdin`, `stdout`, `stderr`].
 
 ### interceptor.signals
 
