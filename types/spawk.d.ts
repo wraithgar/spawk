@@ -114,7 +114,7 @@ declare class Interceptor {
    * returns a string or buffer. The function can also be async or return a Promise. The function will be called with
    * `this` set to the interceptor.
    */
-  strerr(data: string | Buffer | (() => string | Buffer | Promise<string> | Promise<Buffer>)): Interceptor
+  stderr(data: string | Buffer | (() => string | Buffer | Promise<string> | Promise<Buffer>)): Interceptor
 
   private child: ChildProcess
 
