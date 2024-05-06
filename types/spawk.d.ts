@@ -94,6 +94,42 @@ declare class Interceptor {
   exit(code?: number | (() => number | Promise<number>)): Interceptor
 
   /**
+   * Tells the interceptor to delay exiting for a given number of
+   * milliseconds.
+   */
+  delay(ms: number): Interceptor
+
+  /**
+   * Tells the interceptor to delay exiting until it receives the given
+   * signal.  Setting this will ignore any delay you have set.  This will
+   * also be the signal that the interceptor exits with, unless you otherwise
+   * change it via `interceptor.signal`.
+   */
+  exitOnSignal(signal: NodeJS.Signals): Interceptor
+
+  /**
+   * Tells the interceptor to emit the given error object via the `error`
+   * event, instead of the normal `spawn` event.  The interceptor will not
+   * emit the `exit` or `close` events in this case, nor will it set up any
+   * stdio objects.  This can be combined with `interceptor.delay` to delay
+   * this error, or with `interceptor.exitOnSignal` to error when the given
+   * signal is received (replicating a process that can not be killed).
+   */
+  spawnError(error: Error): Interceptor
+
+  /**
+   * Tells the interceptor to emit a given event from stdout with any number
+   * of arguments.
+   */
+  stdoutEmit(eventName: string, ...args: any[]): Interceptor
+
+  /**
+   * Tells the interceptor to emit a given event from stderr with any number
+   * of arguments.
+   */
+  stderrEmit(eventName: string, ...args: any[]): Interceptor
+
+  /**
    * Tells the interceptor what signal to exit with. Defaults to null (exit with no signal). This can be either a string
    * or a function that returns a string. The function can also be async or return a Promise. The function will be
    * called with `this` set to the interceptor.
